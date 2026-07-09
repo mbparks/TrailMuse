@@ -1,5 +1,6 @@
-const APP_VERSION = "FI-077 Trail Muse v1.1";
+const APP_VERSION = "FI-077 Trail Muse v1.2";
 const STORAGE_KEY = "fi077_trail_muse_state_v1";
+const DRAFT_KEY = "fi077_trail_muse_entry_draft_v1";
 
 const entryTypes = [
   "Prompt Response",
@@ -15,6 +16,48 @@ const entryTypes = [
 
 const statuses = ["Raw Spark", "Needs Review", "Ready to Make", "In Progress", "Made", "Archived"];
 const laterColumns = ["Needs Review", "Ready to Make", "In Progress", "Made"];
+
+const quickCaptureDefaults = {
+  "Trail Thought": {
+    prompt: "Fast thought captured in the field.",
+    tags: "thought, field note"
+  },
+  "Photography Note": {
+    prompt: "Photo exposure to review later.",
+    action: "Edit photo",
+    tags: "photo, contact sheet"
+  },
+  "Found Object": {
+    prompt: "Observe, photograph, sketch, and leave natural objects in place.",
+    action: "Make a zine page",
+    tags: "found object, specimen"
+  },
+  "Small Discovery": {
+    prompt: "Small discovery worth returning to.",
+    action: "Research this",
+    tags: "small discovery, attention"
+  },
+  "Sensory Note": {
+    prompt: "Record sound, smell, texture, temperature, light, body feeling, or atmosphere.",
+    action: "Combine with another exposure",
+    tags: "sensory, atmosphere"
+  },
+  "Drawing Note": {
+    prompt: "Sketch seed from the trail.",
+    action: "Draw this",
+    tags: "drawing, sketch"
+  },
+  "Writing Note": {
+    prompt: "Writing seed from the trail.",
+    action: "Write this",
+    tags: "writing, sentence"
+  },
+  "Make Later": {
+    prompt: "Make something from this later.",
+    action: "Turn into project",
+    tags: "make later, darkroom queue"
+  }
+};
 
 const promptDecks = {
   "Silver Light": [
@@ -204,6 +247,7 @@ const captureModules = [
 
 const defaultState = () => ({
   theme: "light",
+  sunlightMode: false,
   entries: [],
   sessions: [],
   currentSessionId: null,
@@ -213,6 +257,9 @@ const defaultState = () => ({
 
 let state = loadState();
 let pendingImageData = "";
+let draftTimer = null;
+let isPopulatingDialog = false;
+let activeDialogIsNew = true;
 
 const els = {};
 
@@ -231,6 +278,8 @@ function cacheElements() {
     bottomNav: document.querySelector(".bottom-nav"),
     saveIndicator: document.getElementById("saveIndicator"),
     themeToggle: document.getElementById("themeToggle"),
+    sunlightToggle: document.getElementById("sunlightToggle"),
+    sunlightToggleRail: document.getElementById("sunlightToggleRail"),
     newEntryTop: document.getElementById("newEntryTop"),
     promptDeck: document.getElementById("promptDeck"),
     promptOutput: document.getElementById("promptOutput"),
@@ -253,6 +302,10 @@ function cacheElements() {
     currentSessionPill: document.getElementById("currentSessionPill"),
     sessionName: document.getElementById("sessionName"),
     sessionIntent: document.getElementById("sessionIntent"),
+    sessionLight: document.getElementById("sessionLight"),
+    sessionWeather: document.getElementById("sessionWeather"),
+    sessionTerrain: document.getElementById("sessionTerrain"),
+    sessionPace: document.getElementById("sessionPace"),
     startSession: document.getElementById("startSession"),
     closeSession: document.getElementById("closeSession"),
     exportJson: document.getElementById("exportJson"),
@@ -277,12 +330,20 @@ function cacheElements() {
     entryAction: document.getElementById("entryAction"),
     entryMood: document.getElementById("entryMood"),
     entryTags: document.getElementById("entryTags"),
+    entryLight: document.getElementById("entryLight"),
+    entryWeather: document.getElementById("entryWeather"),
+    entryTerrain: document.getElementById("entryTerrain"),
+    entryPace: document.getElementById("entryPace"),
     entryImage: document.getElementById("entryImage"),
     imagePreviewWrap: document.getElementById("imagePreviewWrap"),
     imagePreview: document.getElementById("imagePreview"),
     removeImage: document.getElementById("removeImage"),
+    draftRecovery: document.getElementById("draftRecovery"),
+    recoverDraft: document.getElementById("recoverDraft"),
+    discardDraft: document.getElementById("discardDraft"),
     deleteEntry: document.getElementById("deleteEntry"),
     saveAndNew: document.getElementById("saveAndNew"),
+    saveAndWalk: document.getElementById("saveAndWalk"),
     saveEntry: document.getElementById("saveEntry")
   });
 }
@@ -315,15 +376,27 @@ function bindEvents() {
     applyTheme();
   });
 
-  els.newEntryTop.addEventListener("click", () => openEntryDialog({ type: "Trail Thought" }));
+  [els.sunlightToggle, els.sunlightToggleRail].filter(Boolean).forEach(button => {
+    button.addEventListener("click", () => {
+      state.sunlightMode = !state.sunlightMode;
+      saveState();
+      applyTheme();
+    });
+  });
+
+  els.newEntryTop.addEventListener("click", () => openEntryDialog(quickCaptureSeed("Trail Thought")));
   els.openFullCapture.addEventListener("click", () => openEntryDialog({ type: "Trail Thought" }));
+
+  document.querySelectorAll("[data-one-tap]").forEach(button => {
+    button.addEventListener("click", () => openEntryDialog(quickCaptureSeed(button.dataset.oneTap)));
+  });
   els.askMuse.addEventListener("click", askMuse);
   els.savePromptEntry.addEventListener("click", savePromptResponse);
 
   els.quickPanel.addEventListener("click", event => {
     const target = event.target.closest("[data-quick]");
     if (!target) return;
-    openEntryDialog({ type: target.dataset.quick });
+    openEntryDialog(quickCaptureSeed(target.dataset.quick));
   });
 
   [els.searchBox, els.typeFilter, els.statusFilter].forEach(control => {
@@ -337,13 +410,19 @@ function bindEvents() {
   });
 
   els.saveAndNew.addEventListener("click", () => saveEntryFromDialog(true));
+  els.saveAndWalk.addEventListener("click", () => saveEntryFromDialog(false, "walk"));
   els.closeDialog.addEventListener("click", closeDialog);
+  els.entryForm.addEventListener("input", scheduleDraftSave);
+  els.entryForm.addEventListener("change", scheduleDraftSave);
+  els.recoverDraft.addEventListener("click", recoverDraftIntoDialog);
+  els.discardDraft.addEventListener("click", discardDraft);
   els.deleteEntry.addEventListener("click", deleteCurrentEntry);
   els.entryImage.addEventListener("change", handleImageSelection);
   els.removeImage.addEventListener("click", () => {
     pendingImageData = "";
     els.entryImage.value = "";
     updateImagePreview();
+    scheduleDraftSave();
   });
 
   els.journalList.addEventListener("click", handleEntryAction);
@@ -366,7 +445,12 @@ function loadState() {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultState();
     const parsed = JSON.parse(raw);
-    return { ...defaultState(), ...parsed, entries: Array.isArray(parsed.entries) ? parsed.entries : [] };
+    return {
+      ...defaultState(),
+      ...parsed,
+      entries: Array.isArray(parsed.entries) ? parsed.entries : [],
+      sessions: Array.isArray(parsed.sessions) ? parsed.sessions : []
+    };
   } catch (error) {
     console.warn("Trail Muse could not load saved state.", error);
     return defaultState();
@@ -387,7 +471,13 @@ function renderSaveIndicator() {
 
 function applyTheme() {
   document.body.classList.toggle("dark", state.theme === "dark");
+  document.body.classList.toggle("sunlight", Boolean(state.sunlightMode));
   els.themeToggle.textContent = state.theme === "dark" ? "☀" : "☾";
+  if (els.sunlightToggle) els.sunlightToggle.classList.toggle("active", Boolean(state.sunlightMode));
+  if (els.sunlightToggleRail) {
+    els.sunlightToggleRail.classList.toggle("active", Boolean(state.sunlightMode));
+    els.sunlightToggleRail.textContent = state.sunlightMode ? "Sunlight mode on" : "Sunlight mode";
+  }
 }
 
 function setView(viewName) {
@@ -472,6 +562,10 @@ function makeEntry(overrides = {}) {
     note: "",
     location: session?.name || "",
     mood: session?.intent || "",
+    light: session?.light || "",
+    weather: session?.weather || "",
+    terrain: session?.terrain || "",
+    pace: session?.pace || "",
     tags: "",
     action: "",
     status: "Raw Spark",
@@ -484,6 +578,24 @@ function makeEntry(overrides = {}) {
   };
 }
 
+function quickCaptureSeed(type) {
+  const session = getCurrentSession();
+  const defaults = quickCaptureDefaults[type] || {};
+  return {
+    type,
+    title: suggestedTitle(type),
+    prompt: defaults.prompt || "",
+    action: defaults.action || "",
+    tags: defaults.tags || "",
+    location: session?.name || "",
+    mood: session?.intent || "",
+    light: session?.light || "",
+    weather: session?.weather || "",
+    terrain: session?.terrain || "",
+    pace: session?.pace || ""
+  };
+}
+
 function renderCaptureGrid() {
   els.captureGrid.innerHTML = "";
   captureModules.forEach(module => {
@@ -492,35 +604,47 @@ function renderCaptureGrid() {
     fragment.querySelector(".capture-icon").textContent = module.icon;
     fragment.querySelector("h3").textContent = module.title;
     fragment.querySelector("p").textContent = module.description;
-    fragment.querySelector("button").addEventListener("click", () => openEntryDialog({ type: module.type }));
+    fragment.querySelector("button").addEventListener("click", () => openEntryDialog(quickCaptureSeed(module.type)));
     card.dataset.type = module.type;
     els.captureGrid.append(fragment);
   });
 }
 
 function openEntryDialog(seed = {}) {
+  isPopulatingDialog = true;
+  activeDialogIsNew = !seed.id;
   pendingImageData = seed.image || "";
   els.entryForm.reset();
+  const session = getCurrentSession();
   els.entryId.value = seed.id || "";
   els.entryType.value = seed.type || "Trail Thought";
   els.entryStatus.value = seed.status || "Raw Spark";
   els.entryTitle.value = seed.title || suggestedTitle(seed.type || "Trail Thought");
-  els.entryLocation.value = seed.location || getCurrentSession()?.name || "";
+  els.entryLocation.value = seed.location || session?.name || "";
   els.entryPrompt.value = seed.prompt || "";
   els.entryNote.value = seed.note || "";
   els.entryAction.value = seed.action || "";
-  els.entryMood.value = seed.mood || getCurrentSession()?.intent || "";
+  els.entryMood.value = seed.mood || session?.intent || "";
   els.entryTags.value = seed.tags || "";
+  els.entryLight.value = seed.light || session?.light || "";
+  els.entryWeather.value = seed.weather || session?.weather || "";
+  els.entryTerrain.value = seed.terrain || session?.terrain || "";
+  els.entryPace.value = seed.pace || session?.pace || "";
   els.dialogEyebrow.textContent = seed.id ? "Edit field note" : "New field note";
   els.dialogTitle.textContent = seed.id ? "Revise exposure" : `Capture ${seed.type || "exposure"}`;
   els.deleteEntry.hidden = !seed.id;
   updateImagePreview();
+  renderDraftRecovery();
 
   if (typeof els.dialog.showModal === "function") {
     els.dialog.showModal();
   } else {
     els.dialog.setAttribute("open", "");
   }
+
+  window.setTimeout(() => {
+    isPopulatingDialog = false;
+  }, 0);
 }
 
 function suggestedTitle(type) {
@@ -543,7 +667,7 @@ function closeDialog() {
   else els.dialog.removeAttribute("open");
 }
 
-function saveEntryFromDialog(keepOpen) {
+function saveEntryFromDialog(keepOpen, mode = "standard") {
   const id = els.entryId.value;
   const now = new Date().toISOString();
   const values = {
@@ -555,6 +679,10 @@ function saveEntryFromDialog(keepOpen) {
     note: els.entryNote.value.trim(),
     action: els.entryAction.value,
     mood: els.entryMood.value.trim(),
+    light: els.entryLight.value,
+    weather: els.entryWeather.value,
+    terrain: els.entryTerrain.value,
+    pace: els.entryPace.value,
     tags: normalizeTags(els.entryTags.value),
     image: pendingImageData,
     updatedAt: now
@@ -568,16 +696,119 @@ function saveEntryFromDialog(keepOpen) {
     state.entries.unshift(entry);
   }
 
+  clearDraft();
   saveState();
   renderAll();
-  flashSaved("Field note saved");
+  flashSaved(mode === "walk" ? "Saved. Keep walking." : "Field note saved");
 
   if (keepOpen) {
     const nextType = els.entryType.value;
-    openEntryDialog({ type: nextType, location: values.location, mood: values.mood });
+    openEntryDialog({
+      type: nextType,
+      location: values.location,
+      mood: values.mood,
+      light: values.light,
+      weather: values.weather,
+      terrain: values.terrain,
+      pace: values.pace
+    });
   } else {
     closeDialog();
+    if (mode === "walk") setView("capture");
   }
+}
+
+function scheduleDraftSave() {
+  if (isPopulatingDialog || !activeDialogIsNew || !els.dialog.open) return;
+  window.clearTimeout(draftTimer);
+  draftTimer = window.setTimeout(saveDraftFromDialog, 180);
+}
+
+function saveDraftFromDialog() {
+  if (isPopulatingDialog || !activeDialogIsNew) return;
+  const values = getDialogValues();
+  const hasText = [values.title, values.location, values.prompt, values.note, values.mood, values.tags, values.light, values.weather, values.terrain, values.pace, values.action]
+    .some(value => String(value || "").trim());
+  if (!hasText && !pendingImageData) return;
+  localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...values, image: pendingImageData, savedAt: new Date().toISOString() }));
+  renderDraftRecovery();
+}
+
+function getDialogValues() {
+  return {
+    type: els.entryType.value,
+    status: els.entryStatus.value,
+    title: els.entryTitle.value,
+    location: els.entryLocation.value,
+    prompt: els.entryPrompt.value,
+    note: els.entryNote.value,
+    action: els.entryAction.value,
+    mood: els.entryMood.value,
+    light: els.entryLight.value,
+    weather: els.entryWeather.value,
+    terrain: els.entryTerrain.value,
+    pace: els.entryPace.value,
+    tags: els.entryTags.value
+  };
+}
+
+function getSavedDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch (error) {
+    console.warn("Trail Muse could not read the unsaved draft.", error);
+    return null;
+  }
+}
+
+function renderDraftRecovery() {
+  if (!els.draftRecovery) return;
+  const draft = getSavedDraft();
+  const show = activeDialogIsNew && Boolean(draft) && !isCurrentDialogSameAsDraft(draft);
+  els.draftRecovery.hidden = !show;
+}
+
+function isCurrentDialogSameAsDraft(draft) {
+  if (!draft) return false;
+  const values = getDialogValues();
+  return ["type", "status", "title", "location", "prompt", "note", "action", "mood", "light", "weather", "terrain", "pace", "tags"]
+    .every(key => String(values[key] || "") === String(draft[key] || ""));
+}
+
+function recoverDraftIntoDialog() {
+  const draft = getSavedDraft();
+  if (!draft) return;
+  isPopulatingDialog = true;
+  pendingImageData = draft.image || "";
+  els.entryType.value = draft.type || "Trail Thought";
+  els.entryStatus.value = draft.status || "Raw Spark";
+  els.entryTitle.value = draft.title || suggestedTitle(draft.type || "Trail Thought");
+  els.entryLocation.value = draft.location || "";
+  els.entryPrompt.value = draft.prompt || "";
+  els.entryNote.value = draft.note || "";
+  els.entryAction.value = draft.action || "";
+  els.entryMood.value = draft.mood || "";
+  els.entryLight.value = draft.light || "";
+  els.entryWeather.value = draft.weather || "";
+  els.entryTerrain.value = draft.terrain || "";
+  els.entryPace.value = draft.pace || "";
+  els.entryTags.value = draft.tags || "";
+  updateImagePreview();
+  els.draftRecovery.hidden = true;
+  window.setTimeout(() => {
+    isPopulatingDialog = false;
+  }, 0);
+}
+
+function discardDraft() {
+  clearDraft();
+  renderDraftRecovery();
+  flashSaved("Unsaved draft discarded");
+}
+
+function clearDraft() {
+  localStorage.removeItem(DRAFT_KEY);
 }
 
 function deleteCurrentEntry() {
@@ -597,6 +828,7 @@ async function handleImageSelection(event) {
   try {
     pendingImageData = await resizeImageToDataUrl(file, 1100, 0.82);
     updateImagePreview();
+    scheduleDraftSave();
   } catch (error) {
     alert("Trail Muse could not read that image.");
     console.error(error);
@@ -691,7 +923,7 @@ function getFilteredEntries() {
     .filter(entry => status === "all" || entry.status === status)
     .filter(entry => {
       if (!query) return true;
-      const haystack = [entry.title, entry.type, entry.status, entry.prompt, entry.note, entry.location, entry.mood, entry.tags, entry.action]
+      const haystack = [entry.title, entry.type, entry.status, entry.prompt, entry.note, entry.location, entry.mood, entry.light, entry.weather, entry.terrain, entry.pace, entry.tags, entry.action]
         .join(" ")
         .toLowerCase();
       return haystack.includes(query);
@@ -739,6 +971,7 @@ function entryCard(entry, compact = false) {
   meta.append(textSpan(date));
   if (entry.location) meta.append(textSpan(entry.location));
   if (entry.mood) meta.append(textSpan(entry.mood));
+  [entry.light, entry.weather, entry.terrain, entry.pace].filter(Boolean).forEach(condition => meta.append(pill(condition, "condition-chip")));
   splitTags(entry.tags).forEach(tag => meta.append(pill(`#${tag}`, "chip")));
 
   const actions = document.createElement("div");
@@ -900,6 +1133,10 @@ function laterCard(entry) {
   const note = document.createElement("p");
   note.textContent = entry.note || entry.prompt || "No note yet.";
 
+  const conditions = document.createElement("div");
+  conditions.className = "entry-meta";
+  [entry.location, entry.light, entry.weather, entry.terrain, entry.pace].filter(Boolean).forEach(value => conditions.append(textSpan(value)));
+
   const actions = document.createElement("div");
   actions.className = "entry-actions";
   const nextStatus = nextLaterStatus(entry.status);
@@ -908,7 +1145,9 @@ function laterCard(entry) {
     statusButton(`Move to ${nextStatus}`, entry.id, nextStatus)
   );
 
-  card.append(title, type, action, note, actions);
+  card.append(title, type, action, note);
+  if (conditions.childNodes.length) card.append(conditions);
+  card.append(actions);
   return card;
 }
 
@@ -943,6 +1182,7 @@ function renderStudio() {
     [favorites, "starred"],
     [images, "contact prints"],
     [sessions, "sessions"],
+    [entries.filter(entry => entry.light || entry.weather || entry.terrain || entry.pace).length, "conditioned notes"],
     [countUniqueTags(), "recurring tones"]
   ].forEach(([value, label]) => els.dashboardGrid.append(statCard(value, label)));
 
@@ -988,6 +1228,10 @@ function startSession() {
     id: crypto.randomUUID ? crypto.randomUUID() : `session-${Date.now()}`,
     name,
     intent,
+    light: els.sessionLight.value,
+    weather: els.sessionWeather.value,
+    terrain: els.sessionTerrain.value,
+    pace: els.sessionPace.value,
     startedAt: new Date().toISOString(),
     endedAt: null
   };
@@ -995,6 +1239,10 @@ function startSession() {
   state.currentSessionId = session.id;
   els.sessionName.value = "";
   els.sessionIntent.value = "";
+  els.sessionLight.value = "";
+  els.sessionWeather.value = "";
+  els.sessionTerrain.value = "";
+  els.sessionPace.value = "";
   saveState();
   renderAll();
   flashSaved("Exposure roll started");
@@ -1017,7 +1265,12 @@ function closeCurrentSession() {
 
 function renderSessionPill() {
   const session = getCurrentSession();
-  els.currentSessionPill.textContent = session ? `Session: ${session.name}` : "No active session";
+  if (!session) {
+    els.currentSessionPill.textContent = "No active session";
+    return;
+  }
+  const conditions = [session.light, session.weather, session.terrain, session.pace].filter(Boolean).join(" · ");
+  els.currentSessionPill.textContent = conditions ? `Session: ${session.name} · ${conditions}` : `Session: ${session.name}`;
 }
 
 function exportJson() {
@@ -1057,7 +1310,7 @@ function importJson(event) {
 }
 
 function exportCsv() {
-  const headers = ["id", "type", "title", "status", "action", "location", "mood", "tags", "prompt", "note", "createdAt", "updatedAt"];
+  const headers = ["id", "type", "title", "status", "action", "location", "mood", "light", "weather", "terrain", "pace", "tags", "prompt", "note", "createdAt", "updatedAt"];
   const rows = state.entries.map(entry => headers.map(header => csvEscape(entry[header] || "")).join(","));
   downloadText(`trail-muse-${dateStamp()}.csv`, [headers.join(","), ...rows].join("\n"), "text/csv");
 }
@@ -1071,6 +1324,7 @@ function exportHtml() {
       <h2>${escapeHtml(entry.title || "Untitled exposure")}</h2>
       <p class="meta">${escapeHtml(entry.type)} · ${escapeHtml(entry.status)} · ${escapeHtml(formatDate(entry.createdAt))}</p>
       ${entry.location ? `<p><strong>Location:</strong> ${escapeHtml(entry.location)}</p>` : ""}
+      ${[entry.mood, entry.light, entry.weather, entry.terrain, entry.pace].filter(Boolean).length ? `<p><strong>Field conditions:</strong> ${[entry.mood, entry.light, entry.weather, entry.terrain, entry.pace].filter(Boolean).map(escapeHtml).join(" · ")}</p>` : ""}
       ${entry.prompt ? `<blockquote>${escapeHtml(entry.prompt)}</blockquote>` : ""}
       ${entry.note ? `<p>${escapeHtml(entry.note).replace(/\n/g, "<br>")}</p>` : ""}
       ${entry.action ? `<p><strong>Make later:</strong> ${escapeHtml(entry.action)}</p>` : ""}
@@ -1116,6 +1370,10 @@ function loadSampleTrail() {
     id: crypto.randomUUID ? crypto.randomUUID() : `session-${Date.now()}`,
     name: "Canal Towpath Morning Walk",
     intent: "quiet, damp, sketchbook, texture study",
+    light: "Soft overcast",
+    weather: "After storm",
+    terrain: "Creek / water",
+    pace: "Slow looking",
     startedAt: new Date(Date.now() - 1000 * 60 * 65).toISOString(),
     endedAt: new Date(Date.now() - 1000 * 60 * 8).toISOString()
   };
@@ -1196,6 +1454,7 @@ function clearAllData() {
   if (!ok) return;
   state = defaultState();
   localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(DRAFT_KEY);
   applyTheme();
   renderAll();
 }

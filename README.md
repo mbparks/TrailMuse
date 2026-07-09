@@ -1,38 +1,59 @@
-# FI-077 Trail Muse v1.1
+# FI-077 Trail Muse v1.2
 
-Trail Muse is a mobile-first creative field prompt generator and field journal for hikers, artists, writers, photographers, and wandering thinkers.
+Trail Muse is a mobile-first creative field prompt generator and field journal for hikers, artists, writers, and photographers. The visual language is inspired by classic monochrome wilderness photography: silver gelatin prints, contact sheets, tonal zones, shadow detail, and patient looking.
 
-Version 1.1 shifts the app toward the feeling of classic monochrome wilderness photography: deep blacks, luminous highlights, silver print panels, contact-sheet review, tonal-zone language, and quieter field prompts focused on light, weather, scale, texture, and patience.
+## What is new in v1.2
 
-## What is included
+v1.2 is the **Field Capture Upgrade**. It focuses on making Trail Muse faster and more useful outdoors.
 
-- Random field prompt generator with themed prompt decks
-- New monochrome prompt decks: Silver Light, Tonal Zones, and Contact Sheet
-- Quick capture modules for trail thoughts, found objects, small discoveries, sensory notes, drawing notes, photography notes, and writing notes
-- Local autosave using browser localStorage
-- Mobile bottom navigation and desktop side navigation
-- Journal search, type filter, and status filter
-- Darkroom-style follow-up queue for “develop something from this later”
-- Studio dashboard with creative harvest stats and recurring tonal signals
-- Trail session / exposure roll start-close workflow
-- Light/dark mode with high-contrast silver-print styling
-- JSON import/export
-- CSV export
-- Monochrome HTML field journal export
-- Print / Save PDF support through the browser print dialog
-- Sample trail data loader
+- Added a one-tap **Field Console** on the Muse screen.
+- Added a fast-capture panel on the Capture screen.
+- Added thumb-friendly capture flows for Trail Thought, Photography Note, Found Object, Small Discovery, Sensory Note, and Make Later.
+- Added field-condition metadata for entries and sessions:
+  - light
+  - weather
+  - terrain
+  - pace / use mode
+- Added **Sunlight mode** for higher contrast and larger reading rhythm in bright outdoor conditions.
+- Added draft recovery for unsaved field notes.
+- Added **Save + keep walking** behavior.
+- Added richer session context to the active session pill.
+- Added field conditions to journal cards, CSV export, and HTML journal export.
+- Updated demo data with session conditions.
+
+## Core modules
+
+- Random field prompt
+- Sensory prompt
+- Drawing prompt
+- Photography prompt
+- Writing prompt
+- Found object note
+- Trail thought
+- Small discovery
+- Make something from this later
+- Creative follow-up queue
+- Studio dashboard
+- Field journal export
+
+## Use model
+
+Trail Muse is designed around two modes:
+
+1. **Field Mode**: quick prompts and fast capture while outdoors.
+2. **Studio Mode**: later review, sorting, exporting, and developing raw sparks into finished creative work.
+
+## Storage
+
+The app is a standalone HTML/CSS/JS web app. It uses browser localStorage for autosave. Export JSON regularly if you want a durable backup.
 
 ## Files
 
-- `index.html` — app markup
-- `styles.css` — responsive visual design
-- `app.js` — app logic and local persistence
-- `manifest.webmanifest` — basic install metadata
+- `index.html` — app shell and UI structure
+- `styles.css` — monochrome visual system and responsive layout
+- `app.js` — local data model, prompt engine, autosave, exports, and interaction logic
+- `manifest.webmanifest` — install metadata
 
-## Installation
+## Version
 
-Upload all files in this folder to a web server directory. Open `index.html` in a browser. No build step is required.
-
-## Data note
-
-Trail Muse stores data locally in the browser on the current device. Use JSON export/import to move or back up a journal.
+Visible app version: **FI-077 · v1.2**

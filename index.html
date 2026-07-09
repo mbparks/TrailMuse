@@ -20,6 +20,7 @@
       </div>
       <div class="topbar-actions">
         <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle dark mode">☾</button>
+        <button class="icon-button" id="sunlightToggle" type="button" aria-label="Toggle sunlight field mode">☼</button>
         <button class="primary compact" id="newEntryTop" type="button">Capture</button>
       </div>
     </header>
@@ -27,7 +28,7 @@
     <aside class="rail" aria-label="Primary navigation">
       <div class="rail-title">
         <span>Trail Muse</span>
-        <small>v1.1</small>
+        <small>v1.2</small>
       </div>
       <nav class="nav-list" id="navList">
         <button class="nav-item active" data-view="muse" type="button"><span>✦</span><b>Muse</b></button>
@@ -38,7 +39,8 @@
       </nav>
       <div class="rail-foot">
         <p id="saveIndicator">Saved</p>
-        <p class="version">FI-077 · v1.1</p>
+        <button class="secondary compact full-width" id="sunlightToggleRail" type="button">Sunlight mode</button>
+        <p class="version">FI-077 · v1.2</p>
       </div>
     </aside>
 
@@ -52,6 +54,20 @@
           </div>
           <div class="session-pill" id="currentSessionPill">No active session</div>
         </div>
+
+        <section class="field-console" aria-label="One tap field capture console">
+          <div>
+            <p class="eyebrow">v1.2 Field Console</p>
+            <h3>Save the spark. Keep walking.</h3>
+          </div>
+          <div class="field-console-actions">
+            <button data-one-tap="Trail Thought" type="button"><span>☁</span>Thought</button>
+            <button data-one-tap="Photography Note" type="button"><span>▧</span>Photo</button>
+            <button data-one-tap="Found Object" type="button"><span>◈</span>Object</button>
+            <button data-one-tap="Small Discovery" type="button"><span>✶</span>Discovery</button>
+            <button data-one-tap="Make Later" type="button"><span>↝</span>Make Later</button>
+          </div>
+        </section>
 
         <div class="prompt-board">
           <section class="oracle-card" aria-label="Random field prompt generator">
@@ -94,6 +110,20 @@
           </div>
           <button class="primary" id="openFullCapture" type="button">New blank entry</button>
         </div>
+
+        <section class="fast-capture-panel" aria-label="Fast field capture buttons">
+          <div>
+            <p class="eyebrow">One-tap capture</p>
+            <h3>Open the right card with field conditions already attached.</h3>
+          </div>
+          <div class="fast-capture-actions">
+            <button data-one-tap="Trail Thought" type="button">Trail thought</button>
+            <button data-one-tap="Photography Note" type="button">Photo note</button>
+            <button data-one-tap="Found Object" type="button">Found object</button>
+            <button data-one-tap="Sensory Note" type="button">Sensory note</button>
+            <button data-one-tap="Make Later" type="button">Make later</button>
+          </div>
+        </section>
 
         <div class="capture-grid" id="captureGrid"></div>
       </section>
@@ -167,6 +197,47 @@
             <div class="session-form">
               <input id="sessionName" type="text" placeholder="Trail, park, neighborhood, or walk name" />
               <input id="sessionIntent" type="text" placeholder="Intention, mood, or creative medium" />
+              <div class="session-condition-grid">
+                <select id="sessionLight" aria-label="Session light">
+                  <option value="">Light</option>
+                  <option>High contrast</option>
+                  <option>Soft overcast</option>
+                  <option>Backlit</option>
+                  <option>Blue hour</option>
+                  <option>Hard sun</option>
+                  <option>Low silver light</option>
+                  <option>Night / headlamp</option>
+                </select>
+                <select id="sessionWeather" aria-label="Session weather">
+                  <option value="">Weather</option>
+                  <option>Clear</option>
+                  <option>Cloud build</option>
+                  <option>Mist</option>
+                  <option>Rain</option>
+                  <option>Snow</option>
+                  <option>Wind</option>
+                  <option>After storm</option>
+                </select>
+                <select id="sessionTerrain" aria-label="Session terrain">
+                  <option value="">Terrain</option>
+                  <option>Forest</option>
+                  <option>Ridge</option>
+                  <option>Creek / water</option>
+                  <option>Urban edge</option>
+                  <option>Field / meadow</option>
+                  <option>Rock / scree</option>
+                  <option>Neighborhood walk</option>
+                </select>
+                <select id="sessionPace" aria-label="Session pace">
+                  <option value="">Pace</option>
+                  <option>Slow looking</option>
+                  <option>Moving fast</option>
+                  <option>Rest stop</option>
+                  <option>Sketching</option>
+                  <option>Photo walk</option>
+                  <option>Thinking walk</option>
+                </select>
+              </div>
               <div class="two-buttons">
                 <button class="primary" id="startSession" type="button">Start session</button>
                 <button class="secondary" id="closeSession" type="button">Close session</button>
@@ -207,6 +278,16 @@
       </div>
 
       <input type="hidden" id="entryId" />
+      <div class="draft-recovery" id="draftRecovery" hidden>
+        <div>
+          <strong>Unsaved field note found.</strong>
+          <span>Recover the last negative or discard it before you continue.</span>
+        </div>
+        <div class="draft-recovery-actions">
+          <button class="secondary compact" id="recoverDraft" type="button">Recover</button>
+          <button class="secondary compact" id="discardDraft" type="button">Discard</button>
+        </div>
+      </div>
       <div class="form-grid">
         <label>Type
           <select id="entryType"></select>
@@ -250,11 +331,58 @@
             <option>Combine with another exposure</option>
           </select>
         </label>
-        <label>Mood / weather
-          <input id="entryMood" type="text" placeholder="misty, clearing storm, hard sun, quiet, silver..." />
+        <label>Mood / feeling
+          <input id="entryMood" type="text" placeholder="quiet, alert, patient, clearing, strange..." />
         </label>
         <label>Tags
           <input id="entryTags" type="text" placeholder="shadow, granite, cloud, threshold, signal" />
+        </label>
+        <label>Light
+          <select id="entryLight">
+            <option value="">Light not noted</option>
+            <option>High contrast</option>
+            <option>Soft overcast</option>
+            <option>Backlit</option>
+            <option>Blue hour</option>
+            <option>Hard sun</option>
+            <option>Low silver light</option>
+            <option>Night / headlamp</option>
+          </select>
+        </label>
+        <label>Weather
+          <select id="entryWeather">
+            <option value="">Weather not noted</option>
+            <option>Clear</option>
+            <option>Cloud build</option>
+            <option>Mist</option>
+            <option>Rain</option>
+            <option>Snow</option>
+            <option>Wind</option>
+            <option>After storm</option>
+          </select>
+        </label>
+        <label>Terrain
+          <select id="entryTerrain">
+            <option value="">Terrain not noted</option>
+            <option>Forest</option>
+            <option>Ridge</option>
+            <option>Creek / water</option>
+            <option>Urban edge</option>
+            <option>Field / meadow</option>
+            <option>Rock / scree</option>
+            <option>Neighborhood walk</option>
+          </select>
+        </label>
+        <label>Pace / use mode
+          <select id="entryPace">
+            <option value="">Pace not noted</option>
+            <option>Slow looking</option>
+            <option>Moving fast</option>
+            <option>Rest stop</option>
+            <option>Sketching</option>
+            <option>Photo walk</option>
+            <option>Thinking walk</option>
+          </select>
         </label>
         <label>Photo / sketch attachment
           <input id="entryImage" type="file" accept="image/*" />
@@ -269,7 +397,8 @@
       <div class="dialog-actions">
         <button class="danger" id="deleteEntry" type="button">Delete</button>
         <div class="spacer"></div>
-        <button class="secondary" id="saveAndNew" type="button">Save + new</button>
+        <button class="secondary" id="saveAndNew" type="button">Save + another</button>
+        <button class="secondary" id="saveAndWalk" type="button">Save + keep walking</button>
         <button class="primary" id="saveEntry" type="submit">Save field note</button>
       </div>
     </form>
