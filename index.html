@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>FI-077 Trail Muse</title>
+  <meta name="description" content="Trail Muse is a mobile-first monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers." />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <header class="topbar">
+      <div class="brand-lockup">
+        <div class="sigil" aria-hidden="true">✦</div>
+        <div>
+          <p class="eyebrow">Field Instrument 077</p>
+          <h1>Trail Muse</h1>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="icon-button" id="themeToggle" type="button" aria-label="Toggle dark mode">☾</button>
+        <button class="primary compact" id="newEntryTop" type="button">Capture</button>
+      </div>
+    </header>
+
+    <aside class="rail" aria-label="Primary navigation">
+      <div class="rail-title">
+        <span>Trail Muse</span>
+        <small>v1.1</small>
+      </div>
+      <nav class="nav-list" id="navList">
+        <button class="nav-item active" data-view="muse" type="button"><span>✦</span><b>Muse</b></button>
+        <button class="nav-item" data-view="capture" type="button"><span>⊕</span><b>Capture</b></button>
+        <button class="nav-item" data-view="journal" type="button"><span>▤</span><b>Journal</b></button>
+        <button class="nav-item" data-view="later" type="button"><span>↝</span><b>Make Later</b></button>
+        <button class="nav-item" data-view="studio" type="button"><span>⌂</span><b>Studio</b></button>
+      </nav>
+      <div class="rail-foot">
+        <p id="saveIndicator">Saved</p>
+        <p class="version">FI-077 · v1.1</p>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <section class="view active" id="view-muse" aria-labelledby="museTitle">
+        <div class="hero-card">
+          <div>
+            <p class="eyebrow">Expose · Develop · Return</p>
+            <h2 id="museTitle">The trail has entered the darkroom.</h2>
+            <p class="lede">A mobile field journal shaped like a silver gelatin print: deep shadows, luminous weather, patient looking, and creative exposures you can develop later.</p>
+          </div>
+          <div class="session-pill" id="currentSessionPill">No active session</div>
+        </div>
+
+        <div class="prompt-board">
+          <section class="oracle-card" aria-label="Random field prompt generator">
+            <div class="prompt-controls">
+              <label for="promptDeck">Prompt deck</label>
+              <select id="promptDeck"></select>
+            </div>
+            <div class="prompt-output" id="promptOutput">
+              <p class="prompt-kind">Wanderer</p>
+              <h3>Press “Expose Prompt” to receive a field prompt.</h3>
+              <p class="prompt-note">Prompts are small exposures. Use them while standing on a trail, sitting on a rock, or waiting for the clouds to open.</p>
+            </div>
+            <div class="prompt-actions">
+              <button class="primary huge" id="askMuse" type="button">Expose Prompt</button>
+              <button class="secondary" id="savePromptEntry" type="button">Save response</button>
+            </div>
+            <label class="field-label" for="promptResponse">Response</label>
+            <textarea id="promptResponse" rows="5" placeholder="What did the light reveal? What should future-you develop from this?"></textarea>
+          </section>
+
+          <aside class="quick-panel">
+            <h3>Quick exposures</h3>
+            <div class="quick-actions">
+              <button data-quick="Trail Thought" type="button">Trail thought</button>
+              <button data-quick="Found Object" type="button">Found object</button>
+              <button data-quick="Small Discovery" type="button">Small discovery</button>
+              <button data-quick="Sensory Note" type="button">Sensory note</button>
+            </div>
+            <div class="mini-stats" id="miniStats"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="view-capture" aria-labelledby="captureTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Field Mode</p>
+            <h2 id="captureTitle">Catch the negative before it vanishes.</h2>
+            <p>Use these small forms outside. They autosave locally and become contact-sheet cards for later review.</p>
+          </div>
+          <button class="primary" id="openFullCapture" type="button">New blank entry</button>
+        </div>
+
+        <div class="capture-grid" id="captureGrid"></div>
+      </section>
+
+      <section class="view" id="view-journal" aria-labelledby="journalTitle">
+        <div class="section-head stacked-mobile">
+          <div>
+            <p class="eyebrow">Contact Sheet</p>
+            <h2 id="journalTitle">Collected exposures</h2>
+          </div>
+          <div class="toolbar">
+            <button class="secondary" id="exportJson" type="button">Export JSON</button>
+            <label class="secondary file-label" for="importJson">Import JSON</label>
+            <input id="importJson" type="file" accept="application/json" hidden />
+          </div>
+        </div>
+
+        <div class="filters">
+          <input id="searchBox" type="search" placeholder="Search notes, tags, locations..." />
+          <select id="typeFilter"><option value="all">All types</option></select>
+          <select id="statusFilter">
+            <option value="all">All statuses</option>
+            <option>Raw Spark</option>
+            <option>Needs Review</option>
+            <option>Ready to Make</option>
+            <option>In Progress</option>
+            <option>Made</option>
+            <option>Archived</option>
+          </select>
+        </div>
+
+        <div class="empty-state" id="emptyJournal">
+          <div>◇</div>
+          <h3>No field notes yet.</h3>
+          <p>Expose a prompt or capture a small discovery.</p>
+        </div>
+        <div class="card-list" id="journalList"></div>
+      </section>
+
+      <section class="view" id="view-later" aria-labelledby="laterTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Darkroom Queue</p>
+            <h2 id="laterTitle">Develop something from this later.</h2>
+            <p>Every exposure can become a drawing, photograph, essay, zine page, project note, or field instrument idea.</p>
+          </div>
+        </div>
+        <div class="kanban" id="laterBoard"></div>
+      </section>
+
+      <section class="view" id="view-studio" aria-labelledby="studioTitle">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Studio Mode</p>
+            <h2 id="studioTitle">Return to the print.</h2>
+            <p>Review tonal patterns, export field journals, and choose which exposures deserve more work.</p>
+          </div>
+        </div>
+
+        <div class="studio-grid">
+          <section class="panel wide">
+            <h3>Creative harvest / tonal range</h3>
+            <div class="dashboard-grid" id="dashboardGrid"></div>
+          </section>
+          <section class="panel">
+            <h3>Recurring signals in the negative</h3>
+            <div id="tagCloud" class="tag-cloud"></div>
+          </section>
+          <section class="panel">
+            <h3>Trail session / exposure roll</h3>
+            <div class="session-form">
+              <input id="sessionName" type="text" placeholder="Trail, park, neighborhood, or walk name" />
+              <input id="sessionIntent" type="text" placeholder="Intention, mood, or creative medium" />
+              <div class="two-buttons">
+                <button class="primary" id="startSession" type="button">Start session</button>
+                <button class="secondary" id="closeSession" type="button">Close session</button>
+              </div>
+            </div>
+          </section>
+          <section class="panel wide">
+            <h3>Exports</h3>
+            <div class="export-actions">
+              <button id="exportHtml" class="secondary" type="button">Export silver journal HTML</button>
+              <button id="exportCsv" class="secondary" type="button">Export CSV</button>
+              <button id="printJournal" class="secondary" type="button">Print / Save PDF</button>
+              <button id="loadDemo" class="secondary" type="button">Load sample trail</button>
+              <button id="clearDemo" class="danger" type="button">Clear all local data</button>
+            </div>
+          </section>
+        </div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav" aria-label="Mobile navigation">
+      <button class="bottom-item active" data-view="muse" type="button"><span>✦</span>Muse</button>
+      <button class="bottom-item" data-view="capture" type="button"><span>⊕</span>Capture</button>
+      <button class="bottom-item" data-view="journal" type="button"><span>▤</span>Journal</button>
+      <button class="bottom-item" data-view="later" type="button"><span>↝</span>Later</button>
+      <button class="bottom-item" data-view="studio" type="button"><span>⌂</span>Studio</button>
+    </nav>
+  </div>
+
+  <dialog id="entryDialog" class="entry-dialog">
+    <form method="dialog" class="entry-form" id="entryForm">
+      <div class="dialog-head">
+        <div>
+          <p class="eyebrow" id="dialogEyebrow">New field note</p>
+          <h2 id="dialogTitle">Capture exposure</h2>
+        </div>
+        <button class="icon-button" id="closeDialog" value="cancel" type="button" aria-label="Close">×</button>
+      </div>
+
+      <input type="hidden" id="entryId" />
+      <div class="form-grid">
+        <label>Type
+          <select id="entryType"></select>
+        </label>
+        <label>Status
+          <select id="entryStatus">
+            <option>Raw Spark</option>
+            <option>Needs Review</option>
+            <option>Ready to Make</option>
+            <option>In Progress</option>
+            <option>Made</option>
+            <option>Archived</option>
+          </select>
+        </label>
+        <label>Title
+          <input id="entryTitle" type="text" placeholder="A short name for this exposure" />
+        </label>
+        <label>Location / trail
+          <input id="entryLocation" type="text" placeholder="Creek crossing, overlook, backyard, studio..." />
+        </label>
+      </div>
+
+      <label>Prompt or observation
+        <textarea id="entryPrompt" rows="3" placeholder="Prompt, observation, or question"></textarea>
+      </label>
+      <label>Field note
+        <textarea id="entryNote" rows="6" placeholder="What happened? What did the light, shadow, weather, or texture reveal?"></textarea>
+      </label>
+
+      <div class="form-grid">
+        <label>Make later action
+          <select id="entryAction">
+            <option value="">None yet</option>
+            <option>Draw this</option>
+            <option>Write this</option>
+            <option>Edit photo</option>
+            <option>Research this</option>
+            <option>Turn into project</option>
+            <option>Use in newsletter</option>
+            <option>Make a zine page</option>
+            <option>Combine with another exposure</option>
+          </select>
+        </label>
+        <label>Mood / weather
+          <input id="entryMood" type="text" placeholder="misty, clearing storm, hard sun, quiet, silver..." />
+        </label>
+        <label>Tags
+          <input id="entryTags" type="text" placeholder="shadow, granite, cloud, threshold, signal" />
+        </label>
+        <label>Photo / sketch attachment
+          <input id="entryImage" type="file" accept="image/*" />
+        </label>
+      </div>
+
+      <div class="image-preview-wrap" id="imagePreviewWrap" hidden>
+        <img id="imagePreview" alt="Attachment preview" />
+        <button class="secondary compact" id="removeImage" type="button">Remove image</button>
+      </div>
+
+      <div class="dialog-actions">
+        <button class="danger" id="deleteEntry" type="button">Delete</button>
+        <div class="spacer"></div>
+        <button class="secondary" id="saveAndNew" type="button">Save + new</button>
+        <button class="primary" id="saveEntry" type="submit">Save field note</button>
+      </div>
+    </form>
+  </dialog>
+
+  <template id="captureTemplate">
+    <article class="capture-card">
+      <div class="capture-icon"></div>
+      <h3></h3>
+      <p></p>
+      <button class="secondary" type="button">Capture</button>
+    </article>
+  </template>
+
+  <script src="app.js"></script>
+</body>
+</html>
