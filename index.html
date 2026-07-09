@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>FI-077 Trail Muse</title>
+  <title>FI-077 Trail Muse v2.0</title>
   <meta name="description" content="Trail Muse is a mobile-first monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="styles.css" />
@@ -28,7 +28,7 @@
     <aside class="rail" aria-label="Primary navigation">
       <div class="rail-title">
         <span>Trail Muse</span>
-        <small>v1.2</small>
+        <small>v2.0</small>
       </div>
       <nav class="nav-list" id="navList">
         <button class="nav-item active" data-view="muse" type="button"><span>✦</span><b>Muse</b></button>
@@ -40,7 +40,7 @@
       <div class="rail-foot">
         <p id="saveIndicator">Saved</p>
         <button class="secondary compact full-width" id="sunlightToggleRail" type="button">Sunlight mode</button>
-        <p class="version">FI-077 · v1.2</p>
+        <p class="version">FI-077 · v2.0</p>
       </div>
     </aside>
 
@@ -50,14 +50,14 @@
           <div>
             <p class="eyebrow">Expose · Develop · Return</p>
             <h2 id="museTitle">The trail has entered the darkroom.</h2>
-            <p class="lede">A mobile field journal shaped like a silver gelatin print: deep shadows, luminous weather, patient looking, and creative exposures you can develop later.</p>
+            <p class="lede">A mobile field journal shaped like a silver gelatin print: deep shadows, luminous weather, patient looking, and a creative follow-up engine for developing field sparks into finished work.</p>
           </div>
           <div class="session-pill" id="currentSessionPill">No active session</div>
         </div>
 
         <section class="field-console" aria-label="One tap field capture console">
           <div>
-            <p class="eyebrow">v1.2 Field Console</p>
+            <p class="eyebrow">v2.0 Field Console</p>
             <h3>Save the spark. Keep walking.</h3>
           </div>
           <div class="field-console-actions">
@@ -71,9 +71,10 @@
 
         <div class="prompt-board">
           <section class="oracle-card" aria-label="Random field prompt generator">
-            <div class="prompt-controls">
+            <div class="prompt-controls prompt-controls-deck">
               <label for="promptDeck">Prompt deck</label>
               <select id="promptDeck"></select>
+              <button class="secondary compact" id="openDeckStudio" type="button">Deck editor</button>
             </div>
             <div class="prompt-output" id="promptOutput">
               <p class="prompt-kind">Wanderer</p>
@@ -125,6 +126,15 @@
           </div>
         </section>
 
+        <section class="fast-capture-panel specimen-callout" aria-label="Found object ethics and specimen card reminder">
+          <div>
+            <p class="eyebrow">v2.0 Specimen Cards</p>
+            <h3>Found, not taken.</h3>
+            <p>Natural objects usually stay where they belong. Photograph, sketch, describe the material evidence, and make something from the observation later.</p>
+          </div>
+          <button class="secondary" data-one-tap="Found Object" type="button">Open specimen card</button>
+        </section>
+
         <div class="capture-grid" id="captureGrid"></div>
       </section>
 
@@ -141,17 +151,31 @@
           </div>
         </div>
 
+        <section class="review-strip" aria-label="Darkroom review layout controls">
+          <div>
+            <p class="eyebrow">v2.0 Darkroom Review</p>
+            <h3>Review the roll as notes or a contact sheet.</h3>
+          </div>
+          <div class="segmented" role="group" aria-label="Journal layout">
+            <button class="secondary compact" id="layoutList" type="button">List</button>
+            <button class="secondary compact" id="layoutContact" type="button">Contact sheet</button>
+          </div>
+        </section>
+
         <div class="filters">
           <input id="searchBox" type="search" placeholder="Search notes, tags, locations..." />
           <select id="typeFilter"><option value="all">All types</option></select>
           <select id="statusFilter">
             <option value="all">All statuses</option>
-            <option>Raw Spark</option>
-            <option>Needs Review</option>
-            <option>Ready to Make</option>
+            <option>Raw Capture</option>
+            <option>Worth Returning To</option>
+            <option>Develop Further</option>
             <option>In Progress</option>
-            <option>Made</option>
+            <option>Finished</option>
             <option>Archived</option>
+          </select>
+          <select id="sessionFilter" aria-label="Filter by trail session">
+            <option value="all">All sessions / rolls</option>
           </select>
         </div>
 
@@ -166,28 +190,192 @@
       <section class="view" id="view-later" aria-labelledby="laterTitle">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Darkroom Queue</p>
+            <p class="eyebrow">v2.0 Creative Follow-Up Engine</p>
             <h2 id="laterTitle">Develop something from this later.</h2>
-            <p>Every exposure can become a drawing, photograph, essay, zine page, project note, or field instrument idea.</p>
+            <p>Every exposure can become a drawing, photograph, essay, zine page, project note, or field instrument idea. Sort by priority, energy, project, and next action.</p>
           </div>
         </div>
+        <div class="followup-engine" id="followupEngine"></div>
         <div class="kanban" id="laterBoard"></div>
       </section>
 
       <section class="view" id="view-studio" aria-labelledby="studioTitle">
         <div class="section-head">
           <div>
-            <p class="eyebrow">Studio Mode</p>
+            <p class="eyebrow">v2.0 Trail Muse Studio</p>
             <h2 id="studioTitle">Return to the print.</h2>
-            <p>Review tonal patterns, export field journals, and choose which exposures deserve more work.</p>
+            <p>Mobile capture outside. Desktop darkroom later. v2.0 connects the whole loop from field spark to reviewed roll, creative project, export, and backup.</p>
           </div>
         </div>
 
+        <section class="studio-command-center" id="studioCommandCenter" aria-label="Trail Muse Studio command center"></section>
+
         <div class="studio-grid">
+          <section class="panel wide studio-workflow-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">v2.0 Field-to-Studio Loop</p>
+                <h3>What needs attention before the next walk?</h3>
+              </div>
+              <p class="panel-note">A working checklist for converting raw field captures into reviewed, backed-up, and makeable studio material.</p>
+            </div>
+            <div class="studio-workflow" id="studioWorkflow"></div>
+          </section>
+
+          <section class="panel wide series-builder-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">v2.0 Series Builder</p>
+                <h3>Find the bodies of work hiding in the contact sheet.</h3>
+              </div>
+              <p class="panel-note">Groups field sparks by project, session, and recurring signal so finished work can emerge from repeated attention.</p>
+            </div>
+            <div class="series-builder" id="seriesBuilder"></div>
+          </section>
+
+          <section class="panel archive-health-panel">
+            <div class="panel-head compact-head">
+              <div>
+                <p class="eyebrow">v2.0 Archive Health</p>
+                <h3>Backup and metadata readiness</h3>
+              </div>
+            </div>
+            <div class="archive-health" id="archiveHealth"></div>
+          </section>
           <section class="panel wide">
             <h3>Creative harvest / tonal range</h3>
             <div class="dashboard-grid" id="dashboardGrid"></div>
           </section>
+
+          <section class="panel wide project-gallery-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">v2.0 Make Later Projects</p>
+                <h3>Creative workbench</h3>
+              </div>
+              <p class="panel-note">Group queued sparks into projects, see low-energy quick wins, and capture notes when something becomes finished work.</p>
+            </div>
+            <div class="project-gallery" id="projectGallery"></div>
+          </section>
+          <section class="panel wide darkroom-review-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">Darkroom Review Bench</p>
+                <h3>Circle, reject, or develop the best exposures.</h3>
+              </div>
+              <p class="panel-note">Use this on a PC after the walk to review by session, medium, and print status.</p>
+            </div>
+            <div class="review-controls">
+              <select id="studioSessionFilter" aria-label="Filter by session"><option value="all">All sessions</option></select>
+              <select id="studioMediumFilter" aria-label="Filter by medium"><option value="all">All media</option></select>
+              <select id="studioStatusFilter" aria-label="Filter by status"><option value="all">All statuses</option></select>
+            </div>
+            <div class="best-sparks-summary" id="bestSparksSummary"></div>
+            <div class="studio-contact-sheet" id="studioContactSheet"></div>
+          </section>
+
+          <section class="panel wide specimen-gallery-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">v2.0 Specimen Drawer</p>
+                <h3>Found object gallery</h3>
+              </div>
+              <p class="panel-note">Review object cards as a museum drawer: material, texture, condition, scale, ethical handling, and future creative use.</p>
+            </div>
+            <div class="specimen-gallery" id="specimenGallery"></div>
+          </section>
+
+          <section class="panel wide deck-editor-panel" id="deckEditorPanel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">v2.0 Prompt Deck Editor</p>
+                <h3>Shape the Muse before the next roll.</h3>
+              </div>
+              <p class="panel-note">Create custom decks, clone built-in darkroom decks, tune prompts by medium and intensity, then use them in the field.</p>
+            </div>
+
+            <div class="deck-editor-grid">
+              <div class="deck-library">
+                <div class="deck-library-head">
+                  <h4>Prompt library</h4>
+                  <span id="deckLibraryCount">0 decks</span>
+                </div>
+                <div class="deck-library-list" id="deckLibraryList"></div>
+                <div class="deck-toolbox">
+                  <label>Clone built-in deck
+                    <select id="cloneSourceDeck"></select>
+                  </label>
+                  <div class="deck-actions">
+                    <button class="secondary compact" id="newDeck" type="button">New deck</button>
+                    <button class="secondary compact" id="cloneDeck" type="button">Clone deck</button>
+                    <button class="secondary compact" id="useDeckInMuse" type="button">Use in Muse</button>
+                  </div>
+                  <div class="deck-actions">
+                    <button class="secondary compact" id="exportDecks" type="button">Export decks</button>
+                    <label class="secondary compact file-label" for="importDecks">Import decks</label>
+                    <input id="importDecks" type="file" accept="application/json" hidden />
+                  </div>
+                </div>
+              </div>
+
+              <form class="deck-editor-form" id="deckEditorForm">
+                <input type="hidden" id="editingDeckOriginalName" />
+                <label>Deck name
+                  <input id="deckName" type="text" placeholder="Example: Granite Weather, Night Walk, Urban Edges" />
+                </label>
+                <div class="form-grid">
+                  <label>Medium target
+                    <select id="deckMedium">
+                      <option>Mixed field practice</option>
+                      <option>Photography</option>
+                      <option>Drawing</option>
+                      <option>Writing</option>
+                      <option>Naturalist notes</option>
+                      <option>Design / engineering</option>
+                    </select>
+                  </label>
+                  <label>Prompt intensity
+                    <select id="deckIntensity">
+                      <option>Gentle noticing</option>
+                      <option>Observational</option>
+                      <option>Poetic</option>
+                      <option>Strange</option>
+                      <option>Technical</option>
+                    </select>
+                  </label>
+                </div>
+                <label>Description
+                  <input id="deckDescription" type="text" placeholder="What kind of seeing does this deck encourage?" />
+                </label>
+                <label>Prompts
+                  <textarea id="deckPrompts" rows="12" placeholder="One prompt per line.
+Look for a shadow that still holds detail.
+Describe the trail without using color words.
+Find a threshold between built and wild."></textarea>
+                </label>
+                <div class="deck-editor-footer">
+                  <p id="deckPromptCount">0 prompts</p>
+                  <div class="deck-actions">
+                    <button class="danger compact" id="deleteDeck" type="button">Delete custom deck</button>
+                    <button class="primary compact" id="saveDeck" type="submit">Save custom deck</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </section>
+
+          <section class="panel wide session-console-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">v2.0 Trail Session System</p>
+                <h3>Exposure roll console</h3>
+              </div>
+              <p class="panel-note">Each walk now has a container: conditions, creative focus, companions, notes, stats, review actions, and roll-specific exports.</p>
+            </div>
+            <div class="active-session-console" id="activeSessionConsole"></div>
+            <div class="session-archive" id="sessionArchive"></div>
+          </section>
+
           <section class="panel">
             <h3>Recurring signals in the negative</h3>
             <div id="tagCloud" class="tag-cloud"></div>
@@ -196,7 +384,10 @@
             <h3>Trail session / exposure roll</h3>
             <div class="session-form">
               <input id="sessionName" type="text" placeholder="Trail, park, neighborhood, or walk name" />
-              <input id="sessionIntent" type="text" placeholder="Intention, mood, or creative medium" />
+              <input id="sessionIntent" type="text" placeholder="Intention or mood for this exposure roll" />
+              <input id="sessionFocus" type="text" placeholder="Creative focus: photography, sketching, writing, textures..." />
+              <input id="sessionCompanions" type="text" placeholder="Companions, if any" />
+              <textarea id="sessionNotes" rows="3" placeholder="Session notes: route, constraints, things to return for, or field conditions not captured elsewhere"></textarea>
               <div class="session-condition-grid">
                 <select id="sessionLight" aria-label="Session light">
                   <option value="">Light</option>
@@ -244,10 +435,26 @@
               </div>
             </div>
           </section>
-          <section class="panel wide">
-            <h3>Exports</h3>
-            <div class="export-actions">
-              <button id="exportHtml" class="secondary" type="button">Export silver journal HTML</button>
+          <section class="panel wide export-studio-panel">
+            <div class="panel-head">
+              <div>
+                <p class="eyebrow">v2.0 Export Studio</p>
+                <h3>Make finished artifacts from the roll.</h3>
+              </div>
+              <p class="panel-note">Choose the right output: field journal, contact sheet, zine sheet, gallery, markdown archive, specimen cards, or a creative harvest report.</p>
+            </div>
+            <div class="export-studio-grid" id="exportStudioGrid">
+              <button id="exportHtml" class="export-tile" type="button"><span>▤</span><strong>Silver Field Journal</strong><small>Readable HTML journal with notes, conditions, images, and make-later detail.</small></button>
+              <button id="exportContactSheet" class="export-tile" type="button"><span>▧</span><strong>Contact Sheet</strong><small>Dense darkroom grid for print review, circling, and session comparison.</small></button>
+              <button id="exportZine" class="export-tile" type="button"><span>□</span><strong>Zine Sheet</strong><small>Printable folded mini-zine from the strongest sparks and field fragments.</small></button>
+              <button id="exportGallery" class="export-tile" type="button"><span>◫</span><strong>HTML Gallery</strong><small>Image-forward gallery for photo/sketch attachments and captions.</small></button>
+              <button id="exportHarvest" class="export-tile" type="button"><span>✦</span><strong>Creative Harvest Report</strong><small>Studio summary with best sparks, recurring signals, projects, and next actions.</small></button>
+              <button id="exportMarkdown" class="export-tile" type="button"><span>#</span><strong>Markdown Archive</strong><small>Portable text archive for Obsidian, GitHub, notes, newsletters, or editing.</small></button>
+            </div>
+            <div class="export-actions export-actions-secondary">
+              <button id="exportActiveSession" class="secondary" type="button">Export active session HTML</button>
+              <button id="exportSpecimens" class="secondary" type="button">Export specimen cards</button>
+              <button id="exportProjects" class="secondary" type="button">Export make-later plan</button>
               <button id="exportCsv" class="secondary" type="button">Export CSV</button>
               <button id="printJournal" class="secondary" type="button">Print / Save PDF</button>
               <button id="loadDemo" class="secondary" type="button">Load sample trail</button>
@@ -294,11 +501,11 @@
         </label>
         <label>Status
           <select id="entryStatus">
-            <option>Raw Spark</option>
-            <option>Needs Review</option>
-            <option>Ready to Make</option>
+            <option>Raw Capture</option>
+            <option>Worth Returning To</option>
+            <option>Develop Further</option>
             <option>In Progress</option>
-            <option>Made</option>
+            <option>Finished</option>
             <option>Archived</option>
           </select>
         </label>
@@ -317,6 +524,47 @@
         <textarea id="entryNote" rows="6" placeholder="What happened? What did the light, shadow, weather, or texture reveal?"></textarea>
       </label>
 
+
+      <section class="specimen-fields" id="specimenFields" hidden>
+        <div class="specimen-fields-head">
+          <div>
+            <p class="eyebrow">Specimen Card</p>
+            <h3>Object evidence</h3>
+          </div>
+          <label class="checkbox-line">
+            <input id="specimenLeftInPlace" type="checkbox" />
+            <span>Found, observed, and left in place</span>
+          </label>
+        </div>
+        <div class="form-grid">
+          <label>Object name / nickname
+            <input id="specimenName" type="text" placeholder="Rusty washer, silver leaf, broken marker, impossible pebble..." />
+          </label>
+          <label>Material
+            <input id="specimenMaterial" type="text" placeholder="stone, bark, steel, paper, bone, plastic, water-polished unknown..." />
+          </label>
+          <label>Texture
+            <input id="specimenTexture" type="text" placeholder="pitted, polished, fibrous, soft, brittle, corrugated..." />
+          </label>
+          <label>Condition
+            <input id="specimenCondition" type="text" placeholder="weathered, broken, repaired, eroded, fresh, half-buried..." />
+          </label>
+          <label>Scale / size
+            <input id="specimenScale" type="text" placeholder="thumbnail, palm-sized, boot-length, coin-sized..." />
+          </label>
+          <label>Found position
+            <input id="specimenPosition" type="text" placeholder="under root, beside trail marker, in puddle edge, on lock wall..." />
+          </label>
+          <label>Possible story
+            <input id="specimenStory" type="text" placeholder="What might have happened before you arrived?" />
+          </label>
+          <label>Later creative use
+            <input id="specimenUse" type="text" placeholder="specimen card, zine page, sketch study, essay image, project seed..." />
+          </label>
+        </div>
+        <p class="specimen-ethics">Trail Muse treats natural finds as observations first. Photograph, sketch, or describe them unless collecting is clearly appropriate and allowed.</p>
+      </section>
+
       <div class="form-grid">
         <label>Make later action
           <select id="entryAction">
@@ -327,9 +575,38 @@
             <option>Research this</option>
             <option>Turn into project</option>
             <option>Use in newsletter</option>
+            <option>Make a specimen card</option>
             <option>Make a zine page</option>
             <option>Combine with another exposure</option>
           </select>
+        </label>
+        <label>Follow-up priority
+          <select id="entryPriority">
+            <option>Normal</option>
+            <option>Low</option>
+            <option>High</option>
+            <option>Critical</option>
+          </select>
+        </label>
+        <label>Energy needed
+          <select id="entryEnergy">
+            <option>One sitting</option>
+            <option>Tiny edit</option>
+            <option>Deep work</option>
+            <option>Research trail</option>
+          </select>
+        </label>
+        <label>Project / collection
+          <input id="entryProject" type="text" placeholder="Canal zine, mountain study, photo series, essay folder..." />
+        </label>
+        <label>Due / return date
+          <input id="entryDue" type="date" />
+        </label>
+        <label>Next step note
+          <input id="entryNextStep" type="text" placeholder="First small action when you return to the studio" />
+        </label>
+        <label>Finished work notes
+          <input id="entryFinishedNote" type="text" placeholder="Link, title, print note, publication note, or what you made" />
         </label>
         <label>Mood / feeling
           <input id="entryMood" type="text" placeholder="quiet, alert, patient, clearing, strange..." />
