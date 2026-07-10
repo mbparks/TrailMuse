@@ -1,4 +1,4 @@
-# FI-077 Trail Muse v2.7.9
+# FI-077 Trail Muse v2.8.0
 
 A local-first, monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers. Trail Muse runs as static HTML, CSS, and a single `app.js`, with no build step. All data stays in the browser and is included in full JSON archive exports.
 
@@ -31,6 +31,17 @@ Trail Muse records ISO date/time values when a hike starts, when it finishes, an
 
 ## Changelog
 
+### v2.8.0 (offline field support)
+
+Trail Muse is now an installable, offline-capable PWA, which is the point of a field instrument you carry where there is no signal.
+
+- Added a service worker (`sw.js`) that precaches the app shell (HTML, CSS, `app.js`, manifest, icons). After the first load, the app opens and runs with no network. Navigations are network-first so online loads stay fresh, with the cached shell as fallback; other assets are cache-first.
+- Added a real icon set: `icons/icon-192.png`, `icons/icon-512.png`, a maskable 512 variant, an Apple touch icon, and an SVG favicon, generated from `icons/icon.svg`.
+- Rewrote `manifest.webmanifest` with the icon set, an app `id`, an explicit `scope`, portrait orientation, and a dark `background_color` to match `theme_color`.
+- Registered the service worker from `app.js`, feature-detected and error-guarded, so unsupported browsers and test environments are unaffected.
+
+Deploy note: the cache is versioned as `trail-muse-2.8.0` and old caches are cleared on activation, so the `CACHE_VERSION` in `sw.js` must be bumped on every release. Make sure `sw.js` itself is not served with a long cache lifetime, or clients will not pick up new releases.
+
 ### v2.7.9 (cleanup pass)
 
 This release is a maintenance pass with no intended change to on-screen behavior. It removes accumulated dead code and fixes a latent crash.
@@ -54,8 +65,9 @@ Removed source is snapshotted in `archive/removed-legacy-code.js` for reference.
 
 ## Known limitations
 
-- `manifest.webmanifest` declares no icons, so installed PWA instances fall back to a default icon.
+- After a release, an open tab keeps serving the previous cached shell until it is closed and reopened, since the new service worker activates on next load.
 - Analytics and exports operate on locally stored data only. There is no sync or backup beyond manual JSON export.
+- Field photos are stored as data URLs in local storage, which has a size cap. A photo-heavy archive can approach that cap. Moving image blobs to IndexedDB is a planned improvement.
 - The desktop layout and the phone Trail Mode share state but are separate interfaces. Very narrow desktop windows fall back to Trail Mode below 800px.
 
 ## License

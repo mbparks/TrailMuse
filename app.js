@@ -1,4 +1,4 @@
-const APP_VERSION = "2.7.9";
+const APP_VERSION = "2.8.0";
 const STORAGE_KEY = "fi077_trail_muse_state_v1";
 const DRAFT_KEY = "fi077_trail_muse_entry_draft_v1";
 
@@ -302,7 +302,18 @@ document.addEventListener("DOMContentLoaded", () => {
   renderCaptureGrid();
   renderAll();
   initMobileFieldApp();
+  registerServiceWorker();
 });
+
+/* Offline support. Registers the app-shell cache when the browser supports it. */
+function registerServiceWorker() {
+  if (!("serviceWorker" in navigator)) return;
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(error => {
+      console.warn("Trail Muse offline support is unavailable.", error);
+    });
+  });
+}
 
 function cacheElements() {
   Object.assign(els, {
@@ -2356,7 +2367,7 @@ function exportContactSheet() {
 <body>
 <main style="max-width:1200px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.7.8</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v${APP_VERSION}</p>
   <h1>Darkroom Contact Sheet</h1>
   <p>${entries.length} exposure${entries.length === 1 ? "" : "s"}, ranked by review score. Use this sheet to circle, reject, and choose what deserves development.</p>
 </header>
@@ -2409,7 +2420,7 @@ body { background: #efeee8; }
 <body>
 <main class="zine-wrap">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.7.8</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v${APP_VERSION}</p>
   <h1>Printable Field Zine Sheet</h1>
   <p>Eight strongest sparks laid out as a small zine worksheet. Print, fold, cut, annotate, and return to the studio with a physical artifact.</p>
 </header>
@@ -2453,7 +2464,7 @@ ${exportPrintCss()}
 <body>
 <main style="max-width:1180px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.7.8</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v${APP_VERSION}</p>
   <h1>Silver HTML Gallery</h1>
   <p>${entries.length} image exposure${entries.length === 1 ? "" : "s"} exported with captions, tags, and roll context.</p>
 </header>
@@ -2486,7 +2497,7 @@ function exportCreativeHarvestReport() {
 <body>
 <main style="max-width:1120px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.7.8</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v${APP_VERSION}</p>
   <h1>Creative Harvest Report</h1>
   <p>Exported ${escapeHtml(formatDate(new Date().toISOString()))}. ${entries.length} exposure${entries.length === 1 ? "" : "s"}, ${queue.length} open follow-up${queue.length === 1 ? "" : "s"}, ${state.sessions.length} exposure roll${state.sessions.length === 1 ? "" : "s"}.</p>
 </header>
@@ -2517,7 +2528,7 @@ function exportMarkdownArchive() {
   const lines = [];
   lines.push(`# Trail Muse Field Archive`);
   lines.push("");
-  lines.push(`Field Instrument 077 · Trail Muse v2.7.8`);
+  lines.push(`Field Instrument 077 · Trail Muse v${APP_VERSION}`);
   lines.push(`Exported: ${formatDate(new Date().toISOString())}`);
   lines.push(`Entries: ${entries.length}`);
   lines.push("");
@@ -2588,7 +2599,7 @@ function exportHtml() {
 <body>
 <main style="max-width:980px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.7.8</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v${APP_VERSION}</p>
   <h1>Silver Field Journal</h1>
   <p>Exported ${escapeHtml(formatDate(new Date().toISOString()))}. ${entries.length} exposure${entries.length === 1 ? "" : "s"} collected across ${state.sessions.length} exposure roll${state.sessions.length === 1 ? "" : "s"}.</p>
   <p>This journal preserves field notes, prompts, conditions, specimen details, follow-up actions, and attached sketches or photographs in a monochrome print-ready format.</p>

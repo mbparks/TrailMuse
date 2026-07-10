@@ -1,10 +1,17 @@
 {
   "name": "FI-077 Trail Muse",
   "short_name": "Trail Muse",
+  "id": "/fi077-trail-muse",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#d9d8d2",
+  "orientation": "portrait",
+  "background_color": "#111111",
   "theme_color": "#111111",
   "description": "Trail Muse is a local-first mobile field journal and desktop darkroom studio with a simplified Trail Mode for quick hiking captures, sessions, prompts, exports, and later creative review.",
-  "icons": []
+  "icons": [
+    { "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "./icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
 }
