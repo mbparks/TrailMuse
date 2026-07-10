@@ -1,4 +1,4 @@
-# FI-077 Trail Muse v2.11.2
+# FI-077 Trail Muse v2.11.3
 
 A local-first, monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers. Trail Muse runs as static HTML, CSS, and a single `app.js`, with no build step. All data stays in the browser and is included in full JSON archive exports.
 
@@ -30,6 +30,14 @@ Trail Muse records ISO date/time values when a hike starts, when it finishes, an
 - Archive Health includes a guarded **Clear all stored data** control that requires typing `CLEAR` before deletion is enabled. It removes locally stored hikes, entries, projects, artifacts, custom decks, drafts, backup metadata, and preferences.
 
 ## Changelog
+
+### v2.11.3 (mobile capture sheet)
+
+Fixed the mobile capture sheet showing the type chooser buttons after a type was already selected. The chooser now collapses once you pick a type, leaving just the note field and attachments.
+
+- Root cause: the mobile CSS set the chooser and the image preview to display with !important, which overrode the hidden attribute, so they never actually hid. Added [hidden] overrides for both, matching the pattern already used for the mobile stages.
+- The same bug was leaving an empty "Selected field image" preview visible before any photo was added; that is fixed too.
+- Added a regression test that checks both the toggle behavior and the presence of the CSS overrides.
 
 ### v2.11.2 (prompt label)
 
