@@ -1,4 +1,4 @@
-const APP_VERSION = "FI-077 Trail Muse v2.0";
+const APP_VERSION = "FI-077 Trail Muse v2.1";
 const STORAGE_KEY = "fi077_trail_muse_state_v1";
 const DRAFT_KEY = "fi077_trail_muse_entry_draft_v1";
 
@@ -303,8 +303,6 @@ function cacheElements() {
     bottomNav: document.querySelector(".bottom-nav"),
     saveIndicator: document.getElementById("saveIndicator"),
     themeToggle: document.getElementById("themeToggle"),
-    sunlightToggle: document.getElementById("sunlightToggle"),
-    sunlightToggleRail: document.getElementById("sunlightToggleRail"),
     newEntryTop: document.getElementById("newEntryTop"),
     promptDeck: document.getElementById("promptDeck"),
     promptOutput: document.getElementById("promptOutput"),
@@ -362,6 +360,15 @@ function cacheElements() {
     activeSessionConsole: document.getElementById("activeSessionConsole"),
     sessionArchive: document.getElementById("sessionArchive"),
     currentSessionPill: document.getElementById("currentSessionPill"),
+    trailSessionStarter: document.getElementById("trailSessionStarter"),
+    trailSessionStatus: document.getElementById("trailSessionStatus"),
+    trailSessionName: document.getElementById("trailSessionName"),
+    trailSessionWeather: document.getElementById("trailSessionWeather"),
+    trailSessionTerrain: document.getElementById("trailSessionTerrain"),
+    startTrailSessionQuick: document.getElementById("startTrailSessionQuick"),
+    trailQuickNote: document.getElementById("trailQuickNote"),
+    saveTrailQuickNote: document.getElementById("saveTrailQuickNote"),
+    trailPromptButton: document.getElementById("trailPromptButton"),
     sessionName: document.getElementById("sessionName"),
     sessionIntent: document.getElementById("sessionIntent"),
     sessionFocus: document.getElementById("sessionFocus"),
@@ -471,16 +478,22 @@ function bindEvents() {
     applyTheme();
   });
 
-  [els.sunlightToggle, els.sunlightToggleRail].filter(Boolean).forEach(button => {
-    button.addEventListener("click", () => {
-      state.sunlightMode = !state.sunlightMode;
-      saveState();
-      applyTheme();
-    });
-  });
 
   els.newEntryTop.addEventListener("click", () => openEntryDialog(quickCaptureSeed("Trail Thought")));
   els.openFullCapture.addEventListener("click", () => openEntryDialog({ type: "Trail Thought" }));
+  if (els.trailPromptButton) els.trailPromptButton.addEventListener("click", () => {
+    askMuse();
+    els.promptOutput?.scrollIntoView({ behavior: "smooth", block: "center" });
+  });
+  if (els.startTrailSessionQuick) els.startTrailSessionQuick.addEventListener("click", startSessionFromTrailMode);
+  if (els.saveTrailQuickNote) els.saveTrailQuickNote.addEventListener("click", saveTrailQuickNote);
+  if (els.trailQuickNote) els.trailQuickNote.addEventListener("keydown", event => {
+    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") saveTrailQuickNote();
+  });
+  if (els.currentSessionPill) els.currentSessionPill.addEventListener("click", event => {
+    const target = event.target.closest("[data-start-session]");
+    if (target) focusTrailSessionStarter();
+  });
 
   document.querySelectorAll("[data-one-tap]").forEach(button => {
     button.addEventListener("click", () => openEntryDialog(quickCaptureSeed(button.dataset.oneTap)));
@@ -494,7 +507,7 @@ function bindEvents() {
 
   bindDeckEditorEvents();
 
-  els.quickPanel.addEventListener("click", event => {
+  if (els.quickPanel) els.quickPanel.addEventListener("click", event => {
     const target = event.target.closest("[data-quick]");
     if (!target) return;
     openEntryDialog(quickCaptureSeed(target.dataset.quick));
@@ -974,6 +987,7 @@ function loadState() {
       entries: Array.isArray(parsed.entries) ? parsed.entries.map(normalizeEntryForV13) : [],
       sessions: Array.isArray(parsed.sessions) ? parsed.sessions.map(normalizeSessionForV14) : [],
       customDecks: normalizeCustomDecks(parsed.customDecks),
+      sunlightMode: false,
       lastBackupAt: parsed.lastBackupAt || null
     };
     if (!["list", "contact"].includes(loaded.journalLayout)) loaded.journalLayout = "contact";
@@ -1050,13 +1064,14 @@ function renderSaveIndicator() {
 }
 
 function applyTheme() {
+  // v2.1 simplification: there is one visible theme control. Sunlight mode is retired
+  // as a separate switch so the hike UI has fewer competing buttons.
+  state.sunlightMode = false;
   document.body.classList.toggle("dark", state.theme === "dark");
-  document.body.classList.toggle("sunlight", Boolean(state.sunlightMode));
-  els.themeToggle.textContent = state.theme === "dark" ? "☀" : "☾";
-  if (els.sunlightToggle) els.sunlightToggle.classList.toggle("active", Boolean(state.sunlightMode));
-  if (els.sunlightToggleRail) {
-    els.sunlightToggleRail.classList.toggle("active", Boolean(state.sunlightMode));
-    els.sunlightToggleRail.textContent = state.sunlightMode ? "Sunlight mode on" : "Sunlight mode";
+  document.body.classList.remove("sunlight");
+  if (els.themeToggle) {
+    els.themeToggle.textContent = state.theme === "dark" ? "Light" : "Dark";
+    els.themeToggle.setAttribute("aria-label", state.theme === "dark" ? "Switch to light mode" : "Switch to dark mode");
   }
 }
 
@@ -1568,6 +1583,7 @@ function renderAll() {
   renderLaterBoard();
   renderStudio();
   renderSessionPill();
+  renderTrailModeConsole();
   renderSessionArchive();
   renderDeckEditor();
 }
@@ -1579,6 +1595,7 @@ function renderMiniStats() {
   const photos = entries.filter(entry => entry.image).length;
   const favorites = entries.filter(entry => entry.favorite).length;
 
+  if (!els.miniStats) return;
   els.miniStats.innerHTML = "";
   [
     [entries.length, "exposures"],
@@ -2444,6 +2461,7 @@ function renderStudio() {
   renderProjectGallery();
   renderDeckEditor();
   renderSessionPill();
+  renderTrailModeConsole();
   renderSessionArchive();
 }
 
@@ -2460,7 +2478,7 @@ function renderStudioCommandCenter() {
 
   els.studioCommandCenter.innerHTML = `
     <div class="command-hero">
-      <p class="eyebrow">Trail Muse Studio v2.0</p>
+      <p class="eyebrow">Trail Muse Studio v2.1</p>
       <h3>Mobile field notes become a desktop darkroom.</h3>
       <p>Use this command surface after a walk: review the contact sheet, build a series, finish a project, export a journal, and back up the archive before the next roll.</p>
     </div>
@@ -3030,13 +3048,88 @@ function closeCurrentSession() {
 }
 
 function renderSessionPill() {
+  if (!els.currentSessionPill) return;
   const session = getCurrentSession();
   if (!session) {
-    els.currentSessionPill.textContent = "No active session";
+    els.currentSessionPill.innerHTML = `<span>No active session</span><button class="secondary compact" data-start-session type="button">Start session</button>`;
     return;
   }
   const conditions = [session.focus, session.light, session.weather, session.terrain, session.pace].filter(Boolean).join(" · ");
   els.currentSessionPill.textContent = conditions ? `Roll: ${session.name} · ${conditions}` : `Roll: ${session.name}`;
+}
+
+function renderTrailModeConsole() {
+  const session = getCurrentSession();
+  if (els.trailSessionStatus) {
+    if (session) {
+      const conditions = [session.weather, session.terrain, session.pace].filter(Boolean).join(" · ");
+      els.trailSessionStatus.textContent = conditions ? `Active: ${session.name} · ${conditions}` : `Active: ${session.name}`;
+    } else {
+      els.trailSessionStatus.textContent = "No active session";
+    }
+  }
+  if (els.trailSessionStarter) els.trailSessionStarter.classList.toggle("active-roll", Boolean(session));
+  if (els.startTrailSessionQuick) els.startTrailSessionQuick.textContent = session ? "Close session" : "Start session";
+  [els.trailSessionName, els.trailSessionWeather, els.trailSessionTerrain].filter(Boolean).forEach(control => {
+    control.disabled = Boolean(session);
+  });
+}
+
+function focusTrailSessionStarter() {
+  if (els.trailSessionStarter) els.trailSessionStarter.scrollIntoView({ behavior: "smooth", block: "center" });
+  if (els.trailSessionName && !getCurrentSession()) els.trailSessionName.focus();
+}
+
+function startSessionFromTrailMode() {
+  if (state.currentSessionId) {
+    closeCurrentSession();
+    return;
+  }
+  const name = (els.trailSessionName?.value || "").trim() || "Trail walk";
+  const session = normalizeSessionForV14({
+    id: crypto.randomUUID ? crypto.randomUUID() : `session-${Date.now()}`,
+    name,
+    intent: "",
+    focus: "Trail Mode capture",
+    companions: "",
+    notes: "Started from the Muse Trail Mode console.",
+    light: "",
+    weather: els.trailSessionWeather?.value || "",
+    terrain: els.trailSessionTerrain?.value || "",
+    pace: "Moving lightly",
+    startedAt: new Date().toISOString(),
+    endedAt: null
+  });
+  state.sessions.unshift(session);
+  state.currentSessionId = session.id;
+  if (els.trailSessionName) els.trailSessionName.value = "";
+  if (els.trailSessionWeather) els.trailSessionWeather.value = "";
+  if (els.trailSessionTerrain) els.trailSessionTerrain.value = "";
+  saveState();
+  renderAll();
+  flashSaved("Trail session started");
+}
+
+function saveTrailQuickNote() {
+  const note = (els.trailQuickNote?.value || "").trim();
+  if (!note) {
+    if (els.trailQuickNote) els.trailQuickNote.focus();
+    return;
+  }
+  const entry = makeEntry({
+    type: "Trail Thought",
+    title: titleFromPrompt(note) || "Trail thought",
+    prompt: "Trail Mode quick note",
+    note,
+    action: "",
+    status: "Raw Capture",
+    tags: "trail mode, quick note"
+  });
+  state.entries.unshift(entry);
+  els.trailQuickNote.value = "";
+  saveState();
+  renderAll();
+  flashSaved("Saved + keep walking");
 }
 
 function exportJson() {
@@ -3144,7 +3237,7 @@ function exportSpecimenCards() {
 </style>
 </head>
 <body>
-<header><p>Field Instrument 077 · Trail Muse v2.0</p><h1>Specimen Card Sheet</h1><p>${specimens.length} found object card${specimens.length === 1 ? "" : "s"}. Natural objects are treated as observations first: photograph, sketch, describe, and leave in place unless collecting is allowed and appropriate.</p></header>
+<header><p>Field Instrument 077 · Trail Muse v2.1</p><h1>Specimen Card Sheet</h1><p>${specimens.length} found object card${specimens.length === 1 ? "" : "s"}. Natural objects are treated as observations first: photograph, sketch, describe, and leave in place unless collecting is allowed and appropriate.</p></header>
 <main class="sheet">${cards}</main>
 </body>
 </html>`;
@@ -3194,7 +3287,7 @@ function exportMakeLaterPlan() {
 </head>
 <body>
 <header>
-  <p>Field Instrument 077 · Trail Muse v2.0</p>
+  <p>Field Instrument 077 · Trail Muse v2.1</p>
   <h1>Make-Later Plan</h1>
   <p>${queue.length} queued creative follow-up${queue.length === 1 ? "" : "s"} across ${projects.length} project group${projects.length === 1 ? "" : "s"}. Sorted by follow-up score, priority, energy, and review strength.</p>
 </header>
@@ -3307,7 +3400,7 @@ function exportContactSheet() {
 <body>
 <main style="max-width:1200px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.0</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1</p>
   <h1>Darkroom Contact Sheet</h1>
   <p>${entries.length} exposure${entries.length === 1 ? "" : "s"}, ranked by review score. Use this sheet to circle, reject, and choose what deserves development.</p>
 </header>
@@ -3360,7 +3453,7 @@ body { background: #efeee8; }
 <body>
 <main class="zine-wrap">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.0</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1</p>
   <h1>Printable Field Zine Sheet</h1>
   <p>Eight strongest sparks laid out as a small zine worksheet. Print, fold, cut, annotate, and return to the studio with a physical artifact.</p>
 </header>
@@ -3404,7 +3497,7 @@ ${exportPrintCss()}
 <body>
 <main style="max-width:1180px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.0</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1</p>
   <h1>Silver HTML Gallery</h1>
   <p>${entries.length} image exposure${entries.length === 1 ? "" : "s"} exported with captions, tags, and roll context.</p>
 </header>
@@ -3437,7 +3530,7 @@ function exportCreativeHarvestReport() {
 <body>
 <main style="max-width:1120px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.0</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1</p>
   <h1>Creative Harvest Report</h1>
   <p>Exported ${escapeHtml(formatDate(new Date().toISOString()))}. ${entries.length} exposure${entries.length === 1 ? "" : "s"}, ${queue.length} open follow-up${queue.length === 1 ? "" : "s"}, ${state.sessions.length} exposure roll${state.sessions.length === 1 ? "" : "s"}.</p>
 </header>
@@ -3468,7 +3561,7 @@ function exportMarkdownArchive() {
   const lines = [];
   lines.push(`# Trail Muse Field Archive`);
   lines.push("");
-  lines.push(`Field Instrument 077 · Trail Muse v2.0`);
+  lines.push(`Field Instrument 077 · Trail Muse v2.1`);
   lines.push(`Exported: ${formatDate(new Date().toISOString())}`);
   lines.push(`Entries: ${entries.length}`);
   lines.push("");
@@ -3539,7 +3632,7 @@ function exportHtml() {
 <body>
 <main style="max-width:980px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.0</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1</p>
   <h1>Silver Field Journal</h1>
   <p>Exported ${escapeHtml(formatDate(new Date().toISOString()))}. ${entries.length} exposure${entries.length === 1 ? "" : "s"} collected across ${state.sessions.length} exposure roll${state.sessions.length === 1 ? "" : "s"}.</p>
   <p>This journal preserves field notes, prompts, conditions, specimen details, follow-up actions, and attached sketches or photographs in a monochrome print-ready format.</p>
@@ -3605,7 +3698,7 @@ function exportSessionHtml(sessionId) {
 </head>
 <body>
 <header>
-  <p>Field Instrument 077 · Trail Muse · v2.0 Exposure Roll Export</p>
+  <p>Field Instrument 077 · Trail Muse · v2.1 Exposure Roll Export</p>
   <h1>${escapeHtml(session.name || "Untitled exposure roll")}</h1>
   <p>${escapeHtml(conditionLine || "No session conditions recorded.")}</p>
   ${session.notes ? `<p>${escapeHtml(session.notes)}</p>` : ""}

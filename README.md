@@ -1,84 +1,49 @@
-# FI-077 Trail Muse v2.0
+# FI-077 Trail Muse v2.1
 
-A mobile-first monochrome creative field journal for hikers, artists, writers, and photographers. Trail Muse uses a silver gelatin / darkroom visual language to help users notice, capture, review, and develop creative field sparks.
+Trail Muse is a local-first, mobile-first creative field journal and desktop darkroom studio for hikers, artists, writers, and photographers.
 
-## v2.0 focus: Trail Muse Studio
+## v2.1 focus: Trail Mode Simplification
 
-v2.0 is the mature studio release. It connects the outdoor mobile field instrument to a later desktop darkroom workflow: command center, field-to-studio checklist, series builder, archive health, review bench, projects, specimen cards, prompt decks, sessions, and exports.
+v2.1 responds to real trail-use feedback. The app now does less while the user is outside. The Muse screen becomes the main hiking surface: start the walk, save one sentence, expose a prompt, or open one of four useful capture cards. Everything else can wait until later review on a PC.
 
-### New in v2.0
+## New in v2.1
 
-- Added **Trail Muse Studio Command Center**
-- Added a **Field-to-Studio Loop** checklist
-- Added **Series Builder** to find bodies of work across projects, sessions, and recurring tags
-- Added **Archive Health** panel for backup and metadata readiness
-- Added JSON backup timestamp tracking
-- Added command actions for:
-  - capture
-  - journal cleanup
-  - darkroom review
-  - make-later queue
-  - session console
-  - export studio
-  - JSON backup
-- Improved Studio Mode as the PC/later-review home for the app
-- Updated visible version to **FI-077 · v2.0**
+- Consolidated the outdoor workflow into a new **Trail Mode** console on the Muse screen.
+- Removed the separate sunlight mode button so there is now only one visible **Light/Dark** mode toggle.
+- Added a **Start session** button directly to the Muse screen when there is no active session.
+- Added quick session starter fields:
+  - trail / walk name
+  - weather
+  - terrain
+- Added a **Save + keep walking** quick note box for one-sentence captures without opening the full form.
+- Reduced the main outdoor quick actions to four essentials:
+  - Thought
+  - Photo
+  - Object
+  - Discovery
+- Added a dedicated **Expose prompt** button to Trail Mode.
+- Expanded weather choices with partly cloudy, overcast, fog, drizzle, thunderstorm nearby, flurries, frost, ice, high wind, humid, hot/hazy, cold/clear, and damp ground.
+- Expanded terrain choices with canal trail, towpath, lake trail, river trail, mountain trail, wetland/marsh, boardwalk, gravel path, paved greenway, and rail trail.
+- Reframed the prompt-side quick panel as a trail rule: capture one useful trace, pocket the phone, and keep walking.
+- Updated visible version to **FI-077 · v2.1**.
 
-## Existing capabilities
+## Design intent
 
-- Mobile-first responsive layout
-- Desktop review / studio mode
-- Random prompt generator
-- Built-in and custom prompt decks
-- Prompt Deck Editor
-- Quick field capture
-- Found Object / Specimen Card system
-- Specimen Drawer gallery
-- Trail Session / Exposure Roll archive
-- Journal list and contact sheet layouts
-- Darkroom review bench
-- Creative Follow-Up Engine
-- Make Later board
-- Project grouping and finished-work notes
-- Export Studio with:
-  - Silver Field Journal
-  - Darkroom Contact Sheet
-  - Printable Field Zine Sheet
-  - Silver HTML Gallery
-  - Creative Harvest Report
-  - Markdown Archive
-  - active session HTML
-  - specimen cards
-  - make-later plan
-  - CSV
-  - print / save PDF
-- Autosave with localStorage
-- Draft recovery
-- Sunlight mode
-- Light/dark mode
-- JSON import/export
-- Sample data loader
+Trail Muse should not compete with the hike. The v2.1 outdoor workflow is designed around a simple principle:
+
+> Capture the trace. Pocket the phone. Keep walking.
+
+The deeper features still exist for later review: journal, contact sheet, Make Later queue, darkroom review, sessions, prompt decks, specimen drawer, export studio, series builder, and archive health.
+
+## Local-first behavior
+
+Trail Muse stores data locally in the browser with localStorage. Use JSON export as the backup mechanism before clearing browser data or moving to another device.
 
 ## Files
 
-- `index.html`
-- `styles.css`
-- `app.js`
-- `manifest.webmanifest`
-- `README.md`
+- `index.html` — app shell and UI
+- `styles.css` — monochrome, mobile-first, silver-print visual system
+- `app.js` — state, prompts, sessions, capture, journal, studio, exports
+- `manifest.webmanifest` — installable web app metadata
 
-## Use
-
-Open `index.html` in a browser. The app stores data locally in the browser using localStorage. Use JSON export/import for backups or to move data between devices.
-
-## Design note
-
-Trail Muse is designed around three verbs:
-
-1. **Prompt** while outside
-2. **Capture** the field spark quickly
-3. **Return** later to develop the strongest exposures into finished creative work
-
-v2.0 makes the third verb feel like a real studio workflow. The user can return to a walk, review the contact sheet, identify recurring signals, develop projects, export artifacts, and back up the local archive.
-
-Field Instrument 077 · Trail Muse v2.0
+Field Instrument 077 · Trail Muse v2.1
