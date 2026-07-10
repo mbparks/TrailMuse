@@ -1,4 +1,4 @@
-const APP_VERSION = "2.10.0";
+const APP_VERSION = "2.10.1";
 const STORAGE_KEY = "fi077_trail_muse_state_v1";
 const DRAFT_KEY = "fi077_trail_muse_entry_draft_v1";
 

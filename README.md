@@ -1,4 +1,4 @@
-# FI-077 Trail Muse v2.10.0
+# FI-077 Trail Muse v2.10.1
 
 A local-first, monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers. Trail Muse runs as static HTML, CSS, and a single `app.js`, with no build step. All data stays in the browser and is included in full JSON archive exports.
 
@@ -30,6 +30,10 @@ Trail Muse records ISO date/time values when a hike starts, when it finishes, an
 - Archive Health includes a guarded **Clear all stored data** control that requires typing `CLEAR` before deletion is enabled. It removes locally stored hikes, entries, projects, artifacts, custom decks, drafts, backup metadata, and preferences.
 
 ## Changelog
+
+### v2.10.1 (audio quick capture)
+
+Added an Audio card to the Muse module quick-capture row, next to Photo, so a field recording can be started in one tap like the other entry types. The quick-capture grid now holds six cards across.
 
 ### v2.10.0 (audio notes)
 

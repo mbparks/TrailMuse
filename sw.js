@@ -2,15 +2,15 @@
    Precaches the app shell so the instrument works with no signal on the trail.
    Bump CACHE_VERSION on every release so old caches are replaced. */
 
-const CACHE_VERSION = "2.10.0";
+const CACHE_VERSION = "2.10.1";
 const CACHE_NAME = "trail-muse-" + CACHE_VERSION;
 
 /* Exact URLs the page requests, including cache-bust query strings. */
 const CORE_ASSETS = [
   "./",
   "./index.html",
-  "./styles.css?v=2.10.0",
-  "./app.js?v=2.10.0",
+  "./styles.css?v=2.10.1",
+  "./app.js?v=2.10.1",
   "./manifest.webmanifest",
   "./icons/icon-192.png",
   "./icons/icon-512.png",

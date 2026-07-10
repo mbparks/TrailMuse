@@ -2598,7 +2598,7 @@ body.dark .rail-theme-toggle { background: #222; }
 .muse-capture-group-head .eyebrow { margin: 0 0 .15rem; }
 .muse-capture-group-head h3 { margin: 0; }
 .muse-capture-group .field-console-actions {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: .7rem;
 }
 .muse-capture-group .field-console-actions button {
