@@ -827,6 +827,7 @@ body.dark .capture-icon { color: #111; background: radial-gradient(circle at 35%
   color: #111;
   font-weight: 800;
 }
+.mobile-entry-audio { display: block; width: 100%; margin: 8px 0; }
 .spacer { flex: 1; }
 
 body.printing .rail,
@@ -2598,7 +2599,7 @@ body.dark .rail-theme-toggle { background: #222; }
 .muse-capture-group-head .eyebrow { margin: 0 0 .15rem; }
 .muse-capture-group-head h3 { margin: 0; }
 .muse-capture-group .field-console-actions {
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: .7rem;
 }
 .muse-capture-group .field-console-actions button {
@@ -2624,7 +2625,7 @@ body.dark .rail-theme-toggle { background: #222; }
 .muse-capture-group .field-console-actions button:hover { transform: translateY(-2px); box-shadow: 0 8px 18px rgba(0,0,0,.09); }
 
 @media (max-width: 1080px) and (min-width: 801px) {
-  .muse-capture-group .field-console-actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .muse-capture-group .field-console-actions { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 800px) {

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<!-- FI-077 Trail Muse v2.10.1 | Audio quick-capture card on Muse module -->
+<!-- FI-077 Trail Muse v2.11.0 | Photo and audio are attachments, not dedicated types -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>FI-077 Trail Muse v2.10.1</title>
+  <title>FI-077 Trail Muse v2.11.0</title>
   <meta name="description" content="Trail Muse is a mobile-first monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png" />
   <meta name="theme-color" content="#111111" />
-  <link rel="stylesheet" href="styles.css?v=2.10.1" />
+  <link rel="stylesheet" href="styles.css?v=2.11.0" />
   <style id="mobileCriticalStyles">
     .mobile-field-app{display:none}
     @media (max-width:800px){
@@ -94,7 +94,7 @@
     <dialog id="mobileCaptureDialog" class="mobile-sheet">
       <form method="dialog" id="mobileCaptureForm">
         <div class="mobile-sheet-handle"></div><div class="mobile-sheet-head"><div><small>NEW FIELD ENTRY</small><h2 id="mobileCaptureTitle">Capture</h2></div><button value="cancel" type="button" id="mobileCaptureClose">×</button></div>
-        <div id="mobileTypeChooser" class="mobile-type-grid"><button data-mobile-type="Trail Thought" type="button">☁<span>Thought</span></button><button data-mobile-type="Photography Note" type="button">▧<span>Photo</span></button><button data-mobile-type="Audio Note" type="button">♪<span>Audio</span></button><button data-mobile-type="Found Object" type="button">◈<span>Object</span></button><button data-mobile-type="Small Discovery" type="button">✶<span>Discovery</span></button><button data-mobile-type="Sensory Note" type="button">◌<span>Sensory</span></button><button data-mobile-type="Writing Note" type="button">¶<span>Writing</span></button></div>
+        <div id="mobileTypeChooser" class="mobile-type-grid"><button data-mobile-type="Trail Thought" type="button">☁<span>Thought</span></button><button data-mobile-type="Found Object" type="button">◈<span>Object</span></button><button data-mobile-type="Small Discovery" type="button">✶<span>Discovery</span></button><button data-mobile-type="Sensory Note" type="button">◌<span>Sensory</span></button><button data-mobile-type="Writing Note" type="button">¶<span>Writing</span></button></div>
         <div id="mobileCaptureFields" hidden>
           <input id="mobileCaptureType" type="hidden" />
           <textarea id="mobileCaptureNote" rows="6" placeholder="What did you notice?"></textarea>
@@ -165,7 +165,7 @@
     <aside class="rail" aria-label="Primary navigation">
       <div class="rail-title">
         <span>Trail Muse</span>
-        <small>v2.10.1</small>
+        <small>v2.11.0</small>
       </div>
       <nav class="nav-list" id="navList">
         <button class="nav-item active" data-view="muse" type="button"><span>✦</span><b>Muse</b></button>
@@ -176,7 +176,7 @@
       <div class="rail-foot">
         <button class="rail-theme-toggle" id="desktopThemeToggle" type="button" aria-label="Switch to dark mode"><span aria-hidden="true">◐</span><b>Dark mode</b></button>
         <p id="saveIndicator">Saved</p>
-        <p class="version">FI-077 · v2.10.1</p>
+        <p class="version">FI-077 · v2.11.0</p>
       </div>
     </aside>
 
@@ -292,8 +292,6 @@
             <div class="field-console-actions muse-action-grid">
               <button data-muse-prompt type="button"><span>✦</span><strong>Expose prompt</strong></button>
               <button data-one-tap="Trail Thought" type="button"><span>☁</span><strong>Thought</strong></button>
-              <button data-one-tap="Photography Note" type="button"><span>▧</span><strong>Photo</strong></button>
-              <button data-one-tap="Audio Note" type="button"><span>♪</span><strong>Audio</strong></button>
               <button data-one-tap="Found Object" type="button"><span>◈</span><strong>Object</strong></button>
               <button data-one-tap="Small Discovery" type="button"><span>✶</span><strong>Discovery</strong></button>
             </div>
@@ -883,6 +881,6 @@
 
 
 
-  <script src="app.js?v=2.10.1"></script>
+  <script src="app.js?v=2.11.0"></script>
 </body>
 </html>

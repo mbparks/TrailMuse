@@ -1,4 +1,4 @@
-# FI-077 Trail Muse v2.10.1
+# FI-077 Trail Muse v2.11.0
 
 A local-first, monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers. Trail Muse runs as static HTML, CSS, and a single `app.js`, with no build step. All data stays in the browser and is included in full JSON archive exports.
 
@@ -30,6 +30,18 @@ Trail Muse records ISO date/time values when a hike starts, when it finishes, an
 - Archive Health includes a guarded **Clear all stored data** control that requires typing `CLEAR` before deletion is enabled. It removes locally stored hikes, entries, projects, artifacts, custom decks, drafts, backup metadata, and preferences.
 
 ## Changelog
+
+### v2.11.0 (photo and audio as attachments)
+
+Removed "Photo" and "Audio" as dedicated field entry types. Photography and recording are now attachment elements available on any entry (thought, object, discovery, sensory, prompt response, and so on), rather than entry types of their own.
+
+- Dropped both from the type dropdown, the Muse quick-capture row, the capture library, and the mobile type chooser.
+- The photo attachment input and the ten-second recorder remain in the dialog and in Trail Mode for every entry, and playback still appears on cards and in the mobile lists.
+- Existing Photography Note entries are unaffected: their type still displays and their photos still render. Only the ability to create new entries of those two types was removed.
+
+### v2.10.2 (mobile audio playback)
+
+Fixed Audio Notes not playing back in Trail Mode. The mobile recent-entries cards and the full entries list now render an inline audio player, matching the desktop journal and the way photos already appeared in the mobile list.
 
 ### v2.10.1 (audio quick capture)
 

@@ -1,4 +1,4 @@
-const APP_VERSION = "2.10.1";
+const APP_VERSION = "2.11.0";
 const STORAGE_KEY = "fi077_trail_muse_state_v1";
 const DRAFT_KEY = "fi077_trail_muse_entry_draft_v1";
 
@@ -293,8 +293,6 @@ const entryTypes = [
   "Prompt Response",
   "Sensory Note",
   "Drawing Note",
-  "Photography Note",
-  "Audio Note",
   "Writing Note",
   "Found Object",
   "Trail Thought",
@@ -316,18 +314,6 @@ const quickCaptureDefaults = {
   "Trail Thought": {
     prompt: "Fast thought captured in the field.",
     tags: "thought, field note"
-  },
-  "Photography Note": {
-    prompt: "Photo exposure to review later.",
-    action: "Edit photo",
-    priority: "High",
-    energy: "One sitting",
-    tags: "photo, contact sheet"
-  },
-  "Audio Note": {
-    prompt: "Capture up to ten seconds of sound: birdsong, water, wind, a passing train, your own voice.",
-    action: "Review the recording",
-    tags: "audio, field recording, sound"
   },
   "Found Object": {
     prompt: "Observe, photograph, sketch, and leave natural objects in place.",
@@ -538,18 +524,6 @@ const captureModules = [
     icon: "✎",
     title: "Drawing prompt",
     description: "A shadow sketch, mark-making exercise, contour study, texture study, or map fragment."
-  },
-  {
-    type: "Photography Note",
-    icon: "▧",
-    title: "Photography prompt",
-    description: "A print idea, composition note, lighting condition, series candidate, or edit-later reminder."
-  },
-  {
-    type: "Audio Note",
-    icon: "♪",
-    title: "Field recording",
-    description: "Capture up to ten seconds of sound as tonal evidence: birdsong, water, wind, machinery, or a spoken note."
   },
   {
     type: "Writing Note",
@@ -3202,7 +3176,7 @@ function renderMobileFieldApp() {
     entries.slice(0,3).forEach(entry => {
       const card = document.createElement("article");
       card.className = "mobile-recent-card";
-      card.innerHTML = `<strong>${escapeHtml(entry.type || "Field entry")}</strong><p>${escapeHtml(entry.note || entry.prompt || entry.title || "Saved exposure")}</p>`;
+      card.innerHTML = `<strong>${escapeHtml(entry.type || "Field entry")}</strong><p>${escapeHtml(entry.note || entry.prompt || entry.title || "Saved exposure")}</p>${entryHasAudio(entry) ? `<audio class="mobile-entry-audio" controls preload="metadata" src="${audioSrcFor(entry)}"></audio>` : ""}`;
       list.append(card);
     });
   }
@@ -3228,6 +3202,7 @@ function openMobileEntries() {
         <div class="mobile-entry-copy">
           <div class="mobile-entry-meta"><strong>${escapeHtml(entry.type || "Field entry")}</strong><span>${escapeHtml(time)}</span></div>
           ${entryHasImage(entry) ? `<img src="${imageSrcFor(entry)}" alt="Field entry image" />` : ""}
+          ${entryHasAudio(entry) ? `<audio class="mobile-entry-audio" controls preload="metadata" src="${audioSrcFor(entry)}"></audio>` : ""}
           <p>${escapeHtml(entry.note || entry.prompt || entry.title || "Saved exposure")}</p>
         </div>`;
       list.append(card);
