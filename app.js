@@ -1,4 +1,4 @@
-const APP_VERSION = "FI-077 Trail Muse v2.1.1";
+const APP_VERSION = "FI-077 Trail Muse v2.2";
 const STORAGE_KEY = "fi077_trail_muse_state_v1";
 const DRAFT_KEY = "fi077_trail_muse_entry_draft_v1";
 
@@ -295,6 +295,7 @@ document.addEventListener("DOMContentLoaded", () => {
   applyTheme();
   renderCaptureGrid();
   renderAll();
+  initMobileFieldApp();
 });
 
 function cacheElements() {
@@ -1064,7 +1065,7 @@ function renderSaveIndicator() {
 }
 
 function applyTheme() {
-  // v2.1.1 simplification: there is one visible theme control. Sunlight mode is retired
+  // v2.2 simplification: there is one visible theme control. Sunlight mode is retired
   // as a separate switch so the hike UI has fewer competing buttons.
   state.sunlightMode = false;
   document.body.classList.toggle("dark", state.theme === "dark");
@@ -2478,7 +2479,7 @@ function renderStudioCommandCenter() {
 
   els.studioCommandCenter.innerHTML = `
     <div class="command-hero">
-      <p class="eyebrow">Trail Muse Studio v2.1.1</p>
+      <p class="eyebrow">Trail Muse Studio v2.2</p>
       <h3>Mobile field notes become a desktop darkroom.</h3>
       <p>Use this command surface after a walk: review the contact sheet, build a series, finish a project, export a journal, and back up the archive before the next roll.</p>
     </div>
@@ -3237,7 +3238,7 @@ function exportSpecimenCards() {
 </style>
 </head>
 <body>
-<header><p>Field Instrument 077 · Trail Muse v2.1.1</p><h1>Specimen Card Sheet</h1><p>${specimens.length} found object card${specimens.length === 1 ? "" : "s"}. Natural objects are treated as observations first: photograph, sketch, describe, and leave in place unless collecting is allowed and appropriate.</p></header>
+<header><p>Field Instrument 077 · Trail Muse v2.2</p><h1>Specimen Card Sheet</h1><p>${specimens.length} found object card${specimens.length === 1 ? "" : "s"}. Natural objects are treated as observations first: photograph, sketch, describe, and leave in place unless collecting is allowed and appropriate.</p></header>
 <main class="sheet">${cards}</main>
 </body>
 </html>`;
@@ -3287,7 +3288,7 @@ function exportMakeLaterPlan() {
 </head>
 <body>
 <header>
-  <p>Field Instrument 077 · Trail Muse v2.1.1</p>
+  <p>Field Instrument 077 · Trail Muse v2.2</p>
   <h1>Make-Later Plan</h1>
   <p>${queue.length} queued creative follow-up${queue.length === 1 ? "" : "s"} across ${projects.length} project group${projects.length === 1 ? "" : "s"}. Sorted by follow-up score, priority, energy, and review strength.</p>
 </header>
@@ -3400,7 +3401,7 @@ function exportContactSheet() {
 <body>
 <main style="max-width:1200px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1.1</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.2</p>
   <h1>Darkroom Contact Sheet</h1>
   <p>${entries.length} exposure${entries.length === 1 ? "" : "s"}, ranked by review score. Use this sheet to circle, reject, and choose what deserves development.</p>
 </header>
@@ -3453,7 +3454,7 @@ body { background: #efeee8; }
 <body>
 <main class="zine-wrap">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1.1</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.2</p>
   <h1>Printable Field Zine Sheet</h1>
   <p>Eight strongest sparks laid out as a small zine worksheet. Print, fold, cut, annotate, and return to the studio with a physical artifact.</p>
 </header>
@@ -3497,7 +3498,7 @@ ${exportPrintCss()}
 <body>
 <main style="max-width:1180px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1.1</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.2</p>
   <h1>Silver HTML Gallery</h1>
   <p>${entries.length} image exposure${entries.length === 1 ? "" : "s"} exported with captions, tags, and roll context.</p>
 </header>
@@ -3530,7 +3531,7 @@ function exportCreativeHarvestReport() {
 <body>
 <main style="max-width:1120px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1.1</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.2</p>
   <h1>Creative Harvest Report</h1>
   <p>Exported ${escapeHtml(formatDate(new Date().toISOString()))}. ${entries.length} exposure${entries.length === 1 ? "" : "s"}, ${queue.length} open follow-up${queue.length === 1 ? "" : "s"}, ${state.sessions.length} exposure roll${state.sessions.length === 1 ? "" : "s"}.</p>
 </header>
@@ -3561,7 +3562,7 @@ function exportMarkdownArchive() {
   const lines = [];
   lines.push(`# Trail Muse Field Archive`);
   lines.push("");
-  lines.push(`Field Instrument 077 · Trail Muse v2.1.1`);
+  lines.push(`Field Instrument 077 · Trail Muse v2.2`);
   lines.push(`Exported: ${formatDate(new Date().toISOString())}`);
   lines.push(`Entries: ${entries.length}`);
   lines.push("");
@@ -3632,7 +3633,7 @@ function exportHtml() {
 <body>
 <main style="max-width:980px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1.1</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.2</p>
   <h1>Silver Field Journal</h1>
   <p>Exported ${escapeHtml(formatDate(new Date().toISOString()))}. ${entries.length} exposure${entries.length === 1 ? "" : "s"} collected across ${state.sessions.length} exposure roll${state.sessions.length === 1 ? "" : "s"}.</p>
   <p>This journal preserves field notes, prompts, conditions, specimen details, follow-up actions, and attached sketches or photographs in a monochrome print-ready format.</p>
@@ -3698,7 +3699,7 @@ function exportSessionHtml(sessionId) {
 </head>
 <body>
 <header>
-  <p>Field Instrument 077 · Trail Muse · v2.1.1 Exposure Roll Export</p>
+  <p>Field Instrument 077 · Trail Muse · v2.2 Exposure Roll Export</p>
   <h1>${escapeHtml(session.name || "Untitled exposure roll")}</h1>
   <p>${escapeHtml(conditionLine || "No session conditions recorded.")}</p>
   ${session.notes ? `<p>${escapeHtml(session.notes)}</p>` : ""}
@@ -3914,4 +3915,263 @@ function flashSaved(message) {
     if (els.saveIndicator) els.saveIndicator.textContent = previous;
     renderSaveIndicator();
   }, 1200);
+}
+
+/* v2.2 mobile field workflow */
+let mobilePendingImage = "";
+let mobilePromptValue = "";
+
+function initMobileFieldApp() {
+  const root = document.getElementById("mobileFieldApp");
+  if (!root) return;
+  const byId = id => document.getElementById(id);
+
+  byId("mobileThemeToggle")?.addEventListener("click", () => {
+    state.theme = state.theme === "dark" ? "light" : "dark";
+    saveState();
+    applyTheme();
+  });
+
+  byId("mobileSessionForm")?.addEventListener("submit", event => {
+    event.preventDefault();
+    const name = byId("mobileSessionName").value.trim();
+    if (!name) {
+      byId("mobileSessionName").focus();
+      return;
+    }
+    const now = new Date().toISOString();
+    const current = getCurrentSession();
+    if (current) {
+      state.sessions = state.sessions.map(item => item.id === current.id ? { ...item, endedAt: now } : item);
+    }
+    const session = normalizeSessionForV14({
+      id: crypto.randomUUID ? crypto.randomUUID() : `session-${Date.now()}`,
+      name,
+      weather: byId("mobileSessionWeather").value,
+      terrain: byId("mobileSessionTerrain").value,
+      light: byId("mobileSessionLight").value,
+      pace: byId("mobileSessionPace").value,
+      intent: byId("mobileSessionIntent").value.trim(),
+      focus: "",
+      companions: "",
+      notes: "",
+      startedAt: now,
+      endedAt: null
+    });
+    state.sessions.unshift(session);
+    state.currentSessionId = session.id;
+    saveState();
+    renderAll();
+    renderMobileFieldApp();
+  });
+
+  byId("mobileNewEntry")?.addEventListener("click", openMobileCapture);
+  byId("mobileCaptureClose")?.addEventListener("click", () => byId("mobileCaptureDialog").close());
+  byId("mobileTypeChooser")?.addEventListener("click", event => {
+    const button = event.target.closest("[data-mobile-type]");
+    if (!button) return;
+    chooseMobileCaptureType(button.dataset.mobileType);
+  });
+  byId("mobileCaptureImage")?.addEventListener("change", handleMobileImage);
+  byId("mobileCaptureForm")?.addEventListener("submit", saveMobileEntry);
+
+  byId("mobilePrompt")?.addEventListener("click", () => {
+    const deckNames = Object.keys(allPromptDecks());
+    const deck = deckNames[Math.floor(Math.random() * deckNames.length)];
+    const prompts = allPromptDecks()[deck] || [];
+    mobilePromptValue = prompts[Math.floor(Math.random() * prompts.length)] || "Notice what changed when you stopped walking.";
+    byId("mobilePromptText").textContent = mobilePromptValue;
+    byId("mobilePromptCard").hidden = false;
+  });
+  byId("mobileSavePrompt")?.addEventListener("click", () => {
+    chooseMobileCaptureType("Prompt Response");
+    byId("mobileCaptureNote").value = mobilePromptValue;
+    byId("mobilePromptCard").hidden = true;
+  });
+
+  byId("mobileEditSession")?.addEventListener("click", openMobileEditSession);
+  byId("mobileEditClose")?.addEventListener("click", () => byId("mobileEditSessionDialog").close());
+  byId("mobileEditSessionForm")?.addEventListener("submit", saveMobileSessionEdit);
+  byId("mobileFinishHike")?.addEventListener("click", openMobileFinish);
+  byId("mobileFinishClose")?.addEventListener("click", () => byId("mobileFinishDialog").close());
+  byId("mobileCloseOnly")?.addEventListener("click", () => finishMobileHike(false));
+  byId("mobileFinishForm")?.addEventListener("submit", event => { event.preventDefault(); finishMobileHike(true); });
+  byId("mobileViewAll")?.addEventListener("click", () => {
+    setView("journal");
+    document.querySelector(".app-shell").style.display = "block";
+    root.style.display = "none";
+  });
+
+  const weatherSource = byId("mobileSessionWeather");
+  const terrainSource = byId("mobileSessionTerrain");
+  if (byId("mobileEditWeather") && weatherSource) byId("mobileEditWeather").innerHTML = weatherSource.innerHTML;
+  if (byId("mobileEditTerrain") && terrainSource) byId("mobileEditTerrain").innerHTML = terrainSource.innerHTML;
+  renderMobileFieldApp();
+  window.setInterval(updateMobileElapsed, 60000);
+}
+
+function renderMobileFieldApp() {
+  const start = document.getElementById("mobileStartScreen");
+  const active = document.getElementById("mobileActiveScreen");
+  if (!start || !active) return;
+  const session = getCurrentSession();
+  start.hidden = Boolean(session);
+  active.hidden = !session;
+  if (!session) return;
+  document.getElementById("mobileActiveName").textContent = session.name || "Untitled hike";
+  document.getElementById("mobileActiveConditions").textContent = [session.weather, session.terrain, session.light].filter(Boolean).join(" · ") || "Conditions not recorded";
+  const entries = getSessionEntries(session.id).slice().sort((a,b) => new Date(b.createdAt)-new Date(a.createdAt));
+  document.getElementById("mobileEntryCount").textContent = entries.length;
+  updateMobileElapsed();
+  const list = document.getElementById("mobileRecentEntries");
+  list.innerHTML = "";
+  if (!entries.length) {
+    list.innerHTML = '<div class="mobile-recent-card"><strong>No entries yet</strong><p>Tap New field entry when something asks to be remembered.</p></div>';
+  } else {
+    entries.slice(0,3).forEach(entry => {
+      const card = document.createElement("article");
+      card.className = "mobile-recent-card";
+      card.innerHTML = `<strong>${escapeHtml(entry.type || "Field entry")}</strong><p>${escapeHtml(entry.note || entry.prompt || entry.title || "Saved exposure")}</p>`;
+      list.append(card);
+    });
+  }
+}
+
+function updateMobileElapsed() {
+  const session = getCurrentSession();
+  const target = document.getElementById("mobileElapsed");
+  if (session && target) target.textContent = sessionDuration(session);
+}
+
+function openMobileCapture() {
+  mobilePendingImage = "";
+  const dialog = document.getElementById("mobileCaptureDialog");
+  document.getElementById("mobileTypeChooser").hidden = false;
+  document.getElementById("mobileCaptureFields").hidden = true;
+  document.getElementById("mobileCaptureNote").value = "";
+  document.getElementById("mobileCaptureImage").value = "";
+  document.getElementById("mobileCapturePreview").hidden = true;
+  document.getElementById("mobileCaptureTitle").textContent = "What did you notice?";
+  dialog.showModal();
+}
+
+function chooseMobileCaptureType(type) {
+  const dialog = document.getElementById("mobileCaptureDialog");
+  if (!dialog.open) dialog.showModal();
+  document.getElementById("mobileTypeChooser").hidden = true;
+  document.getElementById("mobileCaptureFields").hidden = false;
+  document.getElementById("mobileCaptureType").value = type;
+  document.getElementById("mobileCaptureTitle").textContent = suggestedTitle(type);
+  const placeholders = {
+    "Trail Thought":"One thought from the trail…",
+    "Photography Note":"What image did you make or see?",
+    "Found Object":"What did you find? Leave natural objects in place.",
+    "Small Discovery":"What small thing changed your attention?",
+    "Sensory Note":"Sound, smell, texture, temperature, or atmosphere…",
+    "Writing Note":"A sentence, phrase, or story seed…",
+    "Prompt Response":"Respond to the prompt…"
+  };
+  document.getElementById("mobileCaptureNote").placeholder = placeholders[type] || "What did you notice?";
+  window.setTimeout(() => document.getElementById("mobileCaptureNote").focus(), 120);
+}
+
+function handleMobileImage(event) {
+  const file = event.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    mobilePendingImage = String(reader.result || "");
+    const preview = document.getElementById("mobileCapturePreview");
+    preview.src = mobilePendingImage;
+    preview.hidden = false;
+  };
+  reader.readAsDataURL(file);
+}
+
+function saveMobileEntry(event) {
+  event.preventDefault();
+  const type = document.getElementById("mobileCaptureType").value || "Trail Thought";
+  const note = document.getElementById("mobileCaptureNote").value.trim();
+  if (!note && !mobilePendingImage) {
+    document.getElementById("mobileCaptureNote").focus();
+    return;
+  }
+  const seed = quickCaptureSeed(type);
+  const now = new Date().toISOString();
+  const entry = createDefaultEntry({
+    ...seed,
+    id: crypto.randomUUID ? crypto.randomUUID() : `entry-${Date.now()}`,
+    note,
+    image: mobilePendingImage,
+    sessionId: state.currentSessionId,
+    createdAt: now,
+    updatedAt: now
+  });
+  state.entries.unshift(entry);
+  saveState();
+  renderAll();
+  renderMobileFieldApp();
+  document.getElementById("mobileCaptureDialog").close();
+  if (navigator.vibrate) navigator.vibrate(20);
+}
+
+function openMobileEditSession() {
+  const session = getCurrentSession();
+  if (!session) return;
+  document.getElementById("mobileEditName").value = session.name || "";
+  document.getElementById("mobileEditWeather").value = session.weather || "";
+  document.getElementById("mobileEditTerrain").value = session.terrain || "";
+  document.getElementById("mobileEditIntent").value = session.intent || "";
+  document.getElementById("mobileEditSessionDialog").showModal();
+}
+
+function saveMobileSessionEdit(event) {
+  event.preventDefault();
+  const id = state.currentSessionId;
+  state.sessions = state.sessions.map(session => session.id === id ? {
+    ...session,
+    name: document.getElementById("mobileEditName").value.trim() || session.name,
+    weather: document.getElementById("mobileEditWeather").value,
+    terrain: document.getElementById("mobileEditTerrain").value,
+    intent: document.getElementById("mobileEditIntent").value.trim()
+  } : session);
+  saveState(); renderAll(); renderMobileFieldApp();
+  document.getElementById("mobileEditSessionDialog").close();
+}
+
+function openMobileFinish() {
+  const session = getCurrentSession();
+  if (!session) return;
+  const entries = getSessionEntries(session.id);
+  document.getElementById("mobileFinishSummary").innerHTML = `<strong>${entries.length}</strong><p>field entries · ${escapeHtml(sessionDuration(session))}<br>${escapeHtml([session.weather,session.terrain].filter(Boolean).join(" · ") || "Conditions not recorded")}</p>`;
+  document.getElementById("mobileClosingNote").value = session.notes || "";
+  document.getElementById("mobileFinishDialog").showModal();
+}
+
+function finishMobileHike(shouldExport) {
+  const id = state.currentSessionId;
+  const session = state.sessions.find(item => item.id === id);
+  if (!session) return;
+  const endedAt = new Date().toISOString();
+  const closingNote = document.getElementById("mobileClosingNote").value.trim();
+  const finishedSession = { ...session, notes: closingNote || session.notes || "", endedAt };
+  state.sessions = state.sessions.map(item => item.id === id ? finishedSession : item);
+  state.currentSessionId = null;
+  saveState();
+  if (shouldExport) {
+    const payload = {
+      format: "FI-077 Trail Muse Hike",
+      version: APP_VERSION,
+      exportedAt: new Date().toISOString(),
+      session: finishedSession,
+      entries: getSessionEntries(id)
+    };
+    downloadText(`trail-muse-${safeFileName(finishedSession.name || "hike")}-${dateStamp()}.json`, JSON.stringify(payload,null,2), "application/json");
+  }
+  renderAll(); renderMobileFieldApp();
+  document.getElementById("mobileFinishDialog").close();
+}
+
+function safeFileName(value) {
+  return String(value).toLowerCase().trim().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,60) || "hike";
 }

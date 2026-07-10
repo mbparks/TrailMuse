@@ -3,12 +3,83 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>FI-077 Trail Muse v2.1.1</title>
+  <title>FI-077 Trail Muse v2.2</title>
   <meta name="description" content="Trail Muse is a mobile-first monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <div class="mobile-field-app" id="mobileFieldApp" aria-label="Trail Muse mobile field mode">
+    <header class="mobile-field-header">
+      <div class="mobile-brand"><span class="mobile-sigil">✦</span><div><small>FIELD INSTRUMENT 077</small><strong>Trail Muse</strong></div></div>
+      <button id="mobileThemeToggle" class="mobile-icon-button" type="button" aria-label="Toggle appearance">◐</button>
+    </header>
+
+    <main class="mobile-field-main">
+      <section id="mobileStartScreen" class="mobile-stage">
+        <div class="mobile-photo-banner">
+          <p>EXPOSE · WALK · RETURN</p>
+          <h2>Begin a trail roll.</h2>
+          <span>Set the hike once. Everything you capture will inherit these conditions.</span>
+        </div>
+        <form id="mobileSessionForm" class="mobile-session-card">
+          <label class="mobile-field-label">Hike or trail name
+            <input id="mobileSessionName" required autocomplete="off" placeholder="C&O Canal · Lock 20" />
+          </label>
+          <div class="mobile-two-col">
+            <label class="mobile-field-label">Weather
+              <select id="mobileSessionWeather"><option value="">Choose</option><option>Clear</option><option>Partly cloudy</option><option>Overcast</option><option>Mist</option><option>Fog</option><option>Drizzle</option><option>Rain</option><option>After storm</option><option>Snow</option><option>Frost</option><option>Wind</option><option>High wind</option><option>Humid</option><option>Hot / hazy</option><option>Cold / clear</option></select>
+            </label>
+            <label class="mobile-field-label">Terrain
+              <select id="mobileSessionTerrain"><option value="">Choose</option><option>Canal trail</option><option>Towpath</option><option>Lake trail</option><option>River trail</option><option>Creek / water</option><option>Forest</option><option>Ridge</option><option>Mountain trail</option><option>Field / meadow</option><option>Wetland / marsh</option><option>Boardwalk</option><option>Rock / scree</option><option>Gravel path</option><option>Paved greenway</option><option>Rail trail</option><option>Urban edge</option></select>
+            </label>
+          </div>
+          <details class="mobile-more-fields">
+            <summary>More hike details</summary>
+            <div class="mobile-two-col">
+              <label class="mobile-field-label">Light<select id="mobileSessionLight"><option value="">Choose</option><option>High contrast</option><option>Soft overcast</option><option>Backlit</option><option>Blue hour</option><option>Hard sun</option><option>Low silver light</option><option>Night / headlamp</option></select></label>
+              <label class="mobile-field-label">Pace<select id="mobileSessionPace"><option value="">Choose</option><option>Walking</option><option>Slow looking</option><option>Photography</option><option>Sketching</option><option>Resting / observing</option></select></label>
+            </div>
+            <label class="mobile-field-label">Intention<input id="mobileSessionIntent" placeholder="Quiet observation, photography, clearing my head…" /></label>
+          </details>
+          <button class="mobile-primary mobile-start-button" type="submit">Start hike</button>
+          <p class="mobile-local-note">Saved on this phone. No network required.</p>
+        </form>
+      </section>
+
+      <section id="mobileActiveScreen" class="mobile-stage" hidden>
+        <div class="mobile-active-header">
+          <div><small>ACTIVE TRAIL ROLL</small><h2 id="mobileActiveName">Untitled hike</h2><p id="mobileActiveConditions"></p></div>
+          <button id="mobileEditSession" class="mobile-text-button" type="button">Edit</button>
+        </div>
+        <div class="mobile-count-card"><strong id="mobileEntryCount">0</strong><span>field entries</span><em id="mobileElapsed">Just started</em></div>
+        <button id="mobileNewEntry" class="mobile-capture-button" type="button"><span>＋</span><strong>New field entry</strong><small>One tap. One thought. Keep walking.</small></button>
+        <button id="mobilePrompt" class="mobile-secondary-action" type="button"><span>✦</span> Give me one prompt</button>
+        <div id="mobilePromptCard" class="mobile-prompt-card" hidden><small>FIELD PROMPT</small><p id="mobilePromptText"></p><button id="mobileSavePrompt" type="button">Save as entry</button></div>
+        <section class="mobile-recent-section"><div class="mobile-section-title"><h3>Recent</h3><button id="mobileViewAll" type="button">View all</button></div><div id="mobileRecentEntries" class="mobile-recent-list"></div></section>
+        <button id="mobileFinishHike" class="mobile-finish-button" type="button">Finish hike</button>
+      </section>
+    </main>
+
+    <dialog id="mobileCaptureDialog" class="mobile-sheet">
+      <form method="dialog" id="mobileCaptureForm">
+        <div class="mobile-sheet-handle"></div><div class="mobile-sheet-head"><div><small>NEW FIELD ENTRY</small><h2 id="mobileCaptureTitle">Capture</h2></div><button value="cancel" type="button" id="mobileCaptureClose">×</button></div>
+        <div id="mobileTypeChooser" class="mobile-type-grid"><button data-mobile-type="Trail Thought" type="button">☁<span>Thought</span></button><button data-mobile-type="Photography Note" type="button">▧<span>Photo</span></button><button data-mobile-type="Found Object" type="button">◈<span>Object</span></button><button data-mobile-type="Small Discovery" type="button">✶<span>Discovery</span></button><button data-mobile-type="Sensory Note" type="button">◌<span>Sensory</span></button><button data-mobile-type="Writing Note" type="button">¶<span>Writing</span></button></div>
+        <div id="mobileCaptureFields" hidden>
+          <input id="mobileCaptureType" type="hidden" />
+          <textarea id="mobileCaptureNote" rows="6" placeholder="What did you notice?"></textarea>
+          <label class="mobile-photo-input">Add photo<input id="mobileCaptureImage" type="file" accept="image/*" capture="environment" /></label>
+          <img id="mobileCapturePreview" class="mobile-capture-preview" hidden alt="Selected field image" />
+          <button class="mobile-primary" id="mobileSaveEntry" type="submit">Save entry</button>
+        </div>
+      </form>
+    </dialog>
+
+    <dialog id="mobileEditSessionDialog" class="mobile-sheet"><form method="dialog" id="mobileEditSessionForm"><div class="mobile-sheet-handle"></div><div class="mobile-sheet-head"><div><small>TRAIL ROLL</small><h2>Edit hike</h2></div><button value="cancel" id="mobileEditClose" type="button">×</button></div><label class="mobile-field-label">Hike name<input id="mobileEditName" /></label><div class="mobile-two-col"><label class="mobile-field-label">Weather<select id="mobileEditWeather"></select></label><label class="mobile-field-label">Terrain<select id="mobileEditTerrain"></select></label></div><label class="mobile-field-label">Intention<input id="mobileEditIntent" /></label><button class="mobile-primary" type="submit">Save hike details</button></form></dialog>
+
+    <dialog id="mobileFinishDialog" class="mobile-sheet"><form method="dialog" id="mobileFinishForm"><div class="mobile-sheet-handle"></div><div class="mobile-sheet-head"><div><small>END OF TRAIL</small><h2>Expose this hike.</h2></div><button value="cancel" id="mobileFinishClose" type="button">×</button></div><div id="mobileFinishSummary" class="mobile-finish-summary"></div><label class="mobile-field-label">Closing note<textarea id="mobileClosingNote" rows="4" placeholder="What stayed with you?"></textarea></label><button id="mobileCloseAndExport" class="mobile-primary" type="submit">Close hike + export JSON</button><button id="mobileCloseOnly" class="mobile-secondary-action" type="button">Close without export</button></form></dialog>
+  </div>
+
   <div class="app-shell" id="appShell">
     <header class="topbar">
       <div class="brand-lockup">
@@ -27,7 +98,7 @@
     <aside class="rail" aria-label="Primary navigation">
       <div class="rail-title">
         <span>Trail Muse</span>
-        <small>v2.1.1</small>
+        <small>v2.2</small>
       </div>
       <nav class="nav-list" id="navList">
         <button class="nav-item active" data-view="muse" type="button"><span>✦</span><b>Muse</b></button>
@@ -38,7 +109,7 @@
       </nav>
       <div class="rail-foot">
         <p id="saveIndicator">Saved</p>
-        <p class="version">FI-077 · v2.1.1</p>
+        <p class="version">FI-077 · v2.2</p>
       </div>
     </aside>
 
