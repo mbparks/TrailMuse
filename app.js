@@ -1,4 +1,4 @@
-const APP_VERSION = "2.9.0";
+const APP_VERSION = "2.10.0";
 const STORAGE_KEY = "fi077_trail_muse_state_v1";
 const DRAFT_KEY = "fi077_trail_muse_entry_draft_v1";
 
@@ -8,51 +8,51 @@ function uid(prefix = "id") {
 }
 
 /* ---------------------------------------------------------------------------
-   Image store. Field photos live in IndexedDB, not local storage, so a
-   photo-heavy archive never blows the local-storage quota. A runtime cache
-   mirrors the store so rendering and exports can look images up synchronously.
-   If IndexedDB is unavailable, images fall back to inline data URLs on the
-   entry, which preserves behavior at the cost of the quota relief.
+   Media store. Field photos and audio recordings live in IndexedDB, not local
+   storage, so a media-heavy archive never blows the local-storage quota. Two
+   runtime caches mirror the stores so rendering and exports can look media up
+   synchronously. If IndexedDB is unavailable, media falls back to inline data
+   URLs on the entry, which preserves behavior at the cost of the quota relief.
 --------------------------------------------------------------------------- */
-const IMAGE_DB = "trail-muse";
+const MEDIA_DB = "trail-muse";
+const MEDIA_DB_VERSION = 2;
 const IMAGE_STORE = "images";
+const AUDIO_STORE = "audio";
 const imageCache = new Map();
+const audioCache = new Map();
 
 function imageDbAvailable() {
   return typeof indexedDB !== "undefined" && indexedDB !== null;
 }
 
-function openImageDb() {
+function openMediaDb() {
   return new Promise((resolve, reject) => {
     if (!imageDbAvailable()) { reject(new Error("IndexedDB unavailable")); return; }
-    const request = indexedDB.open(IMAGE_DB, 1);
+    const request = indexedDB.open(MEDIA_DB, MEDIA_DB_VERSION);
     request.onupgradeneeded = () => {
       const db = request.result;
       if (!db.objectStoreNames.contains(IMAGE_STORE)) db.createObjectStore(IMAGE_STORE);
+      if (!db.objectStoreNames.contains(AUDIO_STORE)) db.createObjectStore(AUDIO_STORE);
     };
     request.onsuccess = () => resolve(request.result);
     request.onerror = () => reject(request.error);
   });
 }
 
-function idbWrite(action) {
-  return openImageDb().then(db => new Promise((resolve, reject) => {
-    const tx = db.transaction(IMAGE_STORE, "readwrite");
-    action(tx.objectStore(IMAGE_STORE));
+function idbWrite(storeName, action) {
+  return openMediaDb().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readwrite");
+    action(tx.objectStore(storeName));
     tx.oncomplete = () => { db.close(); resolve(true); };
     tx.onerror = () => { db.close(); reject(tx.error); };
     tx.onabort = () => { db.close(); reject(tx.error); };
   }));
 }
 
-function idbPutImage(id, dataUrl) { return idbWrite(store => store.put(dataUrl, id)); }
-function idbDeleteImage(id) { return idbWrite(store => store.delete(id)); }
-function idbClearImages() { return idbWrite(store => store.clear()); }
-
-function idbGetAllImages() {
-  return openImageDb().then(db => new Promise((resolve, reject) => {
-    const tx = db.transaction(IMAGE_STORE, "readonly");
-    const store = tx.objectStore(IMAGE_STORE);
+function idbGetAll(storeName) {
+  return openMediaDb().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readonly");
+    const store = tx.objectStore(storeName);
     const map = new Map();
     const cursor = store.openCursor();
     cursor.onsuccess = () => { const c = cursor.result; if (c) { map.set(c.key, c.value); c.continue(); } };
@@ -60,6 +60,16 @@ function idbGetAllImages() {
     tx.onerror = () => { db.close(); reject(tx.error); };
   }));
 }
+
+function idbPutImage(id, dataUrl) { return idbWrite(IMAGE_STORE, store => store.put(dataUrl, id)); }
+function idbDeleteImage(id) { return idbWrite(IMAGE_STORE, store => store.delete(id)); }
+function idbClearImages() { return idbWrite(IMAGE_STORE, store => store.clear()); }
+function idbGetAllImages() { return idbGetAll(IMAGE_STORE); }
+
+function idbPutAudio(id, dataUrl) { return idbWrite(AUDIO_STORE, store => store.put(dataUrl, id)); }
+function idbDeleteAudio(id) { return idbWrite(AUDIO_STORE, store => store.delete(id)); }
+function idbClearAudio() { return idbWrite(AUDIO_STORE, store => store.clear()); }
+function idbGetAllAudio() { return idbGetAll(AUDIO_STORE); }
 
 /* Synchronous lookups used everywhere images are shown or exported. */
 function imageSrcFor(entry) {
@@ -146,11 +156,145 @@ function forgetEntryImage(entry) {
   }
 }
 
+/* ---- Audio: the same pattern as images, over the audio store. ---- */
+function audioSrcFor(entry) {
+  if (!entry) return "";
+  if (entry.audioId && audioCache.has(entry.audioId)) return audioCache.get(entry.audioId);
+  if (entry.audio) return entry.audio;
+  return "";
+}
+function entryHasAudio(entry) {
+  return Boolean(entry && (entry.audioId ? audioCache.has(entry.audioId) || entry.audio : entry.audio));
+}
+
+let audioReady = null;
+function loadAudioFromDb() {
+  if (!imageDbAvailable()) return Promise.resolve();
+  if (audioReady) return audioReady;
+  audioReady = (async () => {
+    try {
+      const map = await idbGetAllAudio();
+      map.forEach((value, key) => audioCache.set(key, value));
+    } catch (error) {
+      console.warn("Trail Muse could not load stored audio.", error);
+      return;
+    }
+    await migrateInlineAudio();
+  })();
+  return audioReady;
+}
+
+let audioMigrateChain = Promise.resolve();
+function migrateInlineAudio() {
+  audioMigrateChain = audioMigrateChain.then(() => runInlineAudioMigration());
+  return audioMigrateChain;
+}
+async function runInlineAudioMigration() {
+  if (!imageDbAvailable()) return;
+  let changed = false;
+  for (const entry of state.entries) {
+    if (!entry.audio) continue;
+    const id = entry.audioId || uid("aud");
+    try {
+      await idbPutAudio(id, entry.audio);
+      audioCache.set(id, entry.audio);
+      entry.audioId = id;
+      delete entry.audio;
+      changed = true;
+    } catch (error) {
+      console.warn("Trail Muse could not move a recording into IndexedDB; keeping it inline.", error);
+    }
+  }
+  if (changed) saveState();
+}
+
+async function persistAudio(dataUrl, existingAudioId = "") {
+  if (dataUrl) {
+    const id = existingAudioId || uid("aud");
+    try {
+      await idbPutAudio(id, dataUrl);
+      audioCache.set(id, dataUrl);
+      return { audioId: id, audio: "" };
+    } catch (error) {
+      console.warn("Trail Muse stored a recording inline as a fallback.", error);
+      return { audioId: "", audio: dataUrl };
+    }
+  }
+  if (existingAudioId) {
+    audioCache.delete(existingAudioId);
+    idbDeleteAudio(existingAudioId).catch(() => {});
+  }
+  return { audioId: "", audio: "" };
+}
+
+function forgetEntryAudio(entry) {
+  if (entry?.audioId) {
+    audioCache.delete(entry.audioId);
+    idbDeleteAudio(entry.audioId).catch(() => {});
+  }
+}
+
+/* Shared 10-second recorder, used by the desktop dialog and Trail Mode. */
+const RECORD_LIMIT_MS = 10000;
+let mediaRecorder = null;
+let recorderChunks = [];
+let recorderStopTimer = null;
+let recorderCountdownTimer = null;
+
+function recorderActive() {
+  return Boolean(mediaRecorder && mediaRecorder.state === "recording");
+}
+
+async function startAudioRecording({ onComplete, onTick, onError } = {}) {
+  if (recorderActive()) return;
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof MediaRecorder === "undefined") {
+    onError?.("Recording is not supported in this browser."); return;
+  }
+  let stream;
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  } catch (error) {
+    onError?.("Trail Muse could not reach the microphone. Check the browser permission."); return;
+  }
+  recorderChunks = [];
+  try {
+    mediaRecorder = new MediaRecorder(stream);
+  } catch (error) {
+    stream.getTracks().forEach(track => track.stop());
+    onError?.("Recording is not supported in this browser."); return;
+  }
+  mediaRecorder.ondataavailable = event => { if (event.data && event.data.size) recorderChunks.push(event.data); };
+  mediaRecorder.onstop = () => {
+    stream.getTracks().forEach(track => track.stop());
+    window.clearInterval(recorderCountdownTimer);
+    window.clearTimeout(recorderStopTimer);
+    const type = mediaRecorder.mimeType || "audio/webm";
+    const blob = new Blob(recorderChunks, { type });
+    const reader = new FileReader();
+    reader.onload = () => onComplete?.(String(reader.result || ""));
+    reader.onerror = () => onError?.("Trail Muse could not read the recording.");
+    reader.readAsDataURL(blob);
+  };
+  mediaRecorder.start();
+  const started = Date.now();
+  onTick?.(Math.round(RECORD_LIMIT_MS / 1000));
+  recorderCountdownTimer = window.setInterval(() => {
+    const remaining = Math.max(0, Math.ceil((RECORD_LIMIT_MS - (Date.now() - started)) / 1000));
+    onTick?.(remaining);
+  }, 250);
+  recorderStopTimer = window.setTimeout(() => stopAudioRecording(), RECORD_LIMIT_MS);
+}
+
+function stopAudioRecording() {
+  if (recorderActive()) mediaRecorder.stop();
+}
+
 const entryTypes = [
   "Prompt Response",
   "Sensory Note",
   "Drawing Note",
   "Photography Note",
+  "Audio Note",
   "Writing Note",
   "Found Object",
   "Trail Thought",
@@ -179,6 +323,11 @@ const quickCaptureDefaults = {
     priority: "High",
     energy: "One sitting",
     tags: "photo, contact sheet"
+  },
+  "Audio Note": {
+    prompt: "Capture up to ten seconds of sound: birdsong, water, wind, a passing train, your own voice.",
+    action: "Review the recording",
+    tags: "audio, field recording, sound"
   },
   "Found Object": {
     prompt: "Observe, photograph, sketch, and leave natural objects in place.",
@@ -397,6 +546,12 @@ const captureModules = [
     description: "A print idea, composition note, lighting condition, series candidate, or edit-later reminder."
   },
   {
+    type: "Audio Note",
+    icon: "♪",
+    title: "Field recording",
+    description: "Capture up to ten seconds of sound as tonal evidence: birdsong, water, wind, machinery, or a spoken note."
+  },
+  {
     type: "Writing Note",
     icon: "¶",
     title: "Writing prompt",
@@ -427,6 +582,7 @@ const defaultState = () => ({
 
 let state = loadState();
 let pendingImageData = "";
+let pendingAudioData = "";
 let draftTimer = null;
 let isPopulatingDialog = false;
 let activeDialogIsNew = true;
@@ -439,7 +595,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   bindEvents();
   applyTheme();
   renderCaptureGrid();
-  await loadImagesFromDb();
+  await Promise.all([loadImagesFromDb(), loadAudioFromDb()]);
   renderAll();
   initMobileFieldApp();
   registerServiceWorker();
@@ -604,6 +760,12 @@ function cacheElements() {
     imagePreviewWrap: document.getElementById("imagePreviewWrap"),
     imagePreview: document.getElementById("imagePreview"),
     removeImage: document.getElementById("removeImage"),
+    entryRecord: document.getElementById("entryRecord"),
+    entryStopRecord: document.getElementById("entryStopRecord"),
+    recordTimer: document.getElementById("recordTimer"),
+    audioPreviewWrap: document.getElementById("audioPreviewWrap"),
+    audioPreview: document.getElementById("audioPreview"),
+    removeAudio: document.getElementById("removeAudio"),
     draftRecovery: document.getElementById("draftRecovery"),
     recoverDraft: document.getElementById("recoverDraft"),
     discardDraft: document.getElementById("discardDraft"),
@@ -707,6 +869,13 @@ function bindEvents() {
     pendingImageData = "";
     els.entryImage.value = "";
     updateImagePreview();
+    scheduleDraftSave();
+  });
+  if (els.entryRecord) els.entryRecord.addEventListener("click", beginEntryRecording);
+  if (els.entryStopRecord) els.entryStopRecord.addEventListener("click", stopAudioRecording);
+  if (els.removeAudio) els.removeAudio.addEventListener("click", () => {
+    pendingAudioData = "";
+    updateAudioPreview();
     scheduleDraftSave();
   });
 
@@ -1356,6 +1525,8 @@ function makeEntry(overrides = {}) {
     favorite: false,
     image: "",
     imageId: "",
+    audio: "",
+    audioId: "",
     specimenName: "",
     specimenMaterial: "",
     specimenTexture: "",
@@ -1424,6 +1595,7 @@ function openEntryDialog(seed = {}) {
   isPopulatingDialog = true;
   activeDialogIsNew = !seed.id;
   pendingImageData = seed.image || imageSrcFor(seed) || "";
+  pendingAudioData = seed.audio || audioSrcFor(seed) || "";
   els.entryForm.reset();
   const session = getCurrentSession();
   els.entryId.value = seed.id || "";
@@ -1464,6 +1636,8 @@ function openEntryDialog(seed = {}) {
   els.dialogTitle.textContent = seed.id ? "Revise exposure" : `Capture ${seed.type || "exposure"}`;
   els.deleteEntry.hidden = !seed.id;
   updateImagePreview();
+  updateAudioPreview();
+  setRecordingUI(false);
   renderDraftRecovery();
 
   if (typeof els.dialog.showModal === "function") {
@@ -1485,6 +1659,7 @@ function suggestedTitle(type) {
     "Sensory Note": "Sensory note",
     "Drawing Note": "Sketch seed",
     "Photography Note": "Photo idea",
+    "Audio Note": "Field recording",
     "Writing Note": "Writing seed",
     "Make Later": "Develop this later",
     "Prompt Response": "Prompt response"
@@ -1502,6 +1677,7 @@ async function saveEntryFromDialog(keepOpen, mode = "standard") {
   const now = new Date().toISOString();
   const existing = id ? state.entries.find(entry => entry.id === id) : null;
   const imageResult = await persistImage(pendingImageData, existing?.imageId || "");
+  const audioResult = await persistAudio(pendingAudioData, existing?.audioId || "");
   const values = {
     type: els.entryType.value,
     status: els.entryStatus.value,
@@ -1524,6 +1700,8 @@ async function saveEntryFromDialog(keepOpen, mode = "standard") {
     tags: normalizeTags(els.entryTags.value),
     image: imageResult.image,
     imageId: imageResult.imageId,
+    audio: audioResult.audio,
+    audioId: audioResult.audioId,
     specimenName: els.specimenName.value.trim(),
     specimenMaterial: els.specimenMaterial.value.trim(),
     specimenTexture: els.specimenTexture.value.trim(),
@@ -1583,8 +1761,8 @@ function saveDraftFromDialog() {
   const values = getDialogValues();
   const hasText = [values.title, values.location, values.prompt, values.note, values.mood, values.tags, values.light, values.weather, values.terrain, values.pace, values.action, values.priority, values.energy, values.project, values.due, values.nextStep, values.finishedNote, values.specimenName, values.specimenMaterial, values.specimenTexture, values.specimenCondition, values.specimenScale, values.specimenPosition, values.specimenStory, values.specimenUse]
     .some(value => String(value || "").trim());
-  if (!hasText && !pendingImageData) return;
-  localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...values, image: pendingImageData, savedAt: new Date().toISOString() }));
+  if (!hasText && !pendingImageData && !pendingAudioData) return;
+  localStorage.setItem(DRAFT_KEY, JSON.stringify({ ...values, image: pendingImageData, audio: pendingAudioData, savedAt: new Date().toISOString() }));
   renderDraftRecovery();
 }
 
@@ -1650,6 +1828,7 @@ function recoverDraftIntoDialog() {
   if (!draft) return;
   isPopulatingDialog = true;
   pendingImageData = draft.image || "";
+  pendingAudioData = draft.audio || "";
   els.entryType.value = draft.type || "Trail Thought";
   els.entryStatus.value = normalizeStatus(draft.status || "Raw Capture");
   els.entryTitle.value = draft.title || suggestedTitle(draft.type || "Trail Thought");
@@ -1680,6 +1859,8 @@ function recoverDraftIntoDialog() {
   els.specimenLeftInPlace.checked = Boolean(draft.specimenLeftInPlace);
   updateSpecimenFieldsVisibility();
   updateImagePreview();
+  updateAudioPreview();
+  setRecordingUI(false);
   els.draftRecovery.hidden = true;
   window.setTimeout(() => {
     isPopulatingDialog = false;
@@ -1702,6 +1883,7 @@ function deleteCurrentEntry() {
   const ok = confirm("Delete this field note? This cannot be undone.");
   if (!ok) return;
   forgetEntryImage(state.entries.find(entry => entry.id === id));
+  forgetEntryAudio(state.entries.find(entry => entry.id === id));
   state.entries = state.entries.filter(entry => entry.id !== id);
   saveState();
   renderAll();
@@ -1748,6 +1930,30 @@ function updateImagePreview() {
   els.imagePreviewWrap.hidden = !hasImage;
   if (hasImage) els.imagePreview.src = pendingImageData;
   else els.imagePreview.removeAttribute("src");
+}
+
+function updateAudioPreview() {
+  if (!els.audioPreviewWrap) return;
+  const hasAudio = Boolean(pendingAudioData);
+  els.audioPreviewWrap.hidden = !hasAudio;
+  if (hasAudio) els.audioPreview.src = pendingAudioData;
+  else els.audioPreview.removeAttribute("src");
+}
+
+function setRecordingUI(recording) {
+  if (els.entryRecord) els.entryRecord.hidden = recording;
+  if (els.entryStopRecord) els.entryStopRecord.hidden = !recording;
+  if (els.recordTimer) els.recordTimer.hidden = !recording;
+}
+
+function beginEntryRecording() {
+  setRecordingUI(true);
+  if (els.recordTimer) els.recordTimer.textContent = "10s";
+  startAudioRecording({
+    onComplete: dataUrl => { pendingAudioData = dataUrl; setRecordingUI(false); updateAudioPreview(); scheduleDraftSave(); },
+    onTick: remaining => { if (els.recordTimer) els.recordTimer.textContent = remaining + "s"; },
+    onError: message => { setRecordingUI(false); alert(message); }
+  });
 }
 
 function updateSpecimenFieldsVisibility() {
@@ -2038,6 +2244,7 @@ function deleteEntry(id) {
   const ok = confirm("Delete this field note? This cannot be undone.");
   if (!ok) return;
   forgetEntryImage(state.entries.find(entry => entry.id === id));
+  forgetEntryAudio(state.entries.find(entry => entry.id === id));
   state.entries = state.entries.filter(entry => entry.id !== id);
   saveState();
   renderAll();
@@ -2192,6 +2399,7 @@ function reviewScore(entry) {
   if (entry.status === "Finished") score += 4;
   if (entry.status === "Worth Returning To") score += 3;
   if (entryHasImage(entry)) score += 3;
+  if (entryHasAudio(entry)) score += 3;
   if (entry.action) score += 3;
   if ((entry.note || "").length > 120) score += 2;
   if (entry.prompt) score += 1;
@@ -2214,6 +2422,7 @@ function strongestReason(entry) {
   if (entry.project) reasons.push(`project: ${entry.project}`);
   if (entry.priority && entry.priority !== "Normal") reasons.push(`${entry.priority.toLowerCase()} priority`);
   if (entryHasImage(entry)) reasons.push("has a contact print");
+  if (entryHasAudio(entry)) reasons.push("has a field recording");
   if (splitTags(entry.tags).length) reasons.push(`signals: ${splitTags(entry.tags).slice(0, 3).join(", ")}`);
   return reasons.length ? reasons.join(" · ") : "This exposure rises to the top because it has enough detail to review further.";
 }
@@ -2335,8 +2544,10 @@ function exportJson() {
     ...state,
     entries: state.entries.map(entry => {
       const src = imageSrcFor(entry);
+      const aud = audioSrcFor(entry);
       const copy = { ...entry };
       if (src) copy.image = src; else delete copy.image;
+      if (aud) copy.audio = aud; else delete copy.audio;
       return copy;
     })
   };
@@ -2378,7 +2589,7 @@ function importJson(event) {
         if (existing) state.entries = state.entries.filter(entry => entry.sessionId !== importedSession.id);
         state.entries = [...state.entries, ...importedEntries];
         saveState();
-        await migrateInlineImages();
+        await Promise.all([migrateInlineImages(), migrateInlineAudio()]);
         renderAll();
         if (els.sessionFilter) els.sessionFilter.value = importedSession.id;
         renderJournal();
@@ -2401,7 +2612,7 @@ function importJson(event) {
       };
       if (!["list", "contact"].includes(state.journalLayout)) state.journalLayout = "contact";
       saveState();
-      await migrateInlineImages();
+      await Promise.all([migrateInlineImages(), migrateInlineAudio()]);
       applyTheme();
       renderAll();
       flashSaved("Trail Muse archive imported");
@@ -2809,10 +3020,16 @@ async function clearAllData() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(DRAFT_KEY);
   imageCache.clear();
-  if (imageDbAvailable()) { try { await idbClearImages(); } catch (error) { console.warn("Trail Muse could not clear stored images.", error); } }
+  audioCache.clear();
+  if (imageDbAvailable()) {
+    try { await idbClearImages(); } catch (error) { console.warn("Trail Muse could not clear stored images.", error); }
+    try { await idbClearAudio(); } catch (error) { console.warn("Trail Muse could not clear stored audio.", error); }
+  }
   state = defaultState();
   pendingImageData = "";
+  pendingAudioData = "";
   mobilePendingImage = "";
+  mobilePendingAudio = "";
   closeClearAllDialog();
   applyTheme();
   renderAll();
@@ -2864,6 +3081,7 @@ function flashSaved(message) {
 
 /* v2.7.8 mobile field workflow */
 let mobilePendingImage = "";
+let mobilePendingAudio = "";
 let mobilePromptValue = "";
 
 function initMobileFieldApp() {
@@ -2920,6 +3138,9 @@ function initMobileFieldApp() {
     chooseMobileCaptureType(button.dataset.mobileType);
   });
   byId("mobileCaptureImage")?.addEventListener("change", handleMobileImage);
+  byId("mobileCaptureRecord")?.addEventListener("click", beginMobileRecording);
+  byId("mobileCaptureStopRecord")?.addEventListener("click", stopAudioRecording);
+  byId("mobileCaptureRemoveAudio")?.addEventListener("click", () => { mobilePendingAudio = ""; updateMobileAudioPreview(); });
   byId("mobileCaptureForm")?.addEventListener("submit", saveMobileEntry);
 
   byId("mobilePrompt")?.addEventListener("click", () => {
@@ -3031,6 +3252,9 @@ function updateMobileElapsed() {
 
 function openMobileCapture() {
   mobilePendingImage = "";
+  mobilePendingAudio = "";
+  updateMobileAudioPreview();
+  setMobileRecordingUI(false);
   const dialog = document.getElementById("mobileCaptureDialog");
   document.getElementById("mobileTypeChooser").hidden = false;
   document.getElementById("mobileCaptureFields").hidden = true;
@@ -3074,23 +3298,55 @@ function handleMobileImage(event) {
   reader.readAsDataURL(file);
 }
 
+function updateMobileAudioPreview() {
+  const wrap = document.getElementById("mobileCaptureAudioWrap");
+  if (!wrap) return;
+  const hasAudio = Boolean(mobilePendingAudio);
+  wrap.hidden = !hasAudio;
+  const player = document.getElementById("mobileCapturePreviewAudio");
+  if (player) { if (hasAudio) player.src = mobilePendingAudio; else player.removeAttribute("src"); }
+}
+
+function setMobileRecordingUI(recording) {
+  const record = document.getElementById("mobileCaptureRecord");
+  const stop = document.getElementById("mobileCaptureStopRecord");
+  const timer = document.getElementById("mobileCaptureRecordTimer");
+  if (record) record.hidden = recording;
+  if (stop) stop.hidden = !recording;
+  if (timer) timer.hidden = !recording;
+}
+
+function beginMobileRecording() {
+  setMobileRecordingUI(true);
+  const timer = document.getElementById("mobileCaptureRecordTimer");
+  if (timer) timer.textContent = "10s";
+  startAudioRecording({
+    onComplete: dataUrl => { mobilePendingAudio = dataUrl; setMobileRecordingUI(false); updateMobileAudioPreview(); },
+    onTick: remaining => { const el = document.getElementById("mobileCaptureRecordTimer"); if (el) el.textContent = remaining + "s"; },
+    onError: message => { setMobileRecordingUI(false); alert(message); }
+  });
+}
+
 async function saveMobileEntry(event) {
   event.preventDefault();
   const type = document.getElementById("mobileCaptureType").value || "Trail Thought";
   const note = document.getElementById("mobileCaptureNote").value.trim();
-  if (!note && !mobilePendingImage) {
+  if (!note && !mobilePendingImage && !mobilePendingAudio) {
     document.getElementById("mobileCaptureNote").focus();
     return;
   }
   const seed = quickCaptureSeed(type);
   const now = new Date().toISOString();
   const imageResult = await persistImage(mobilePendingImage, "");
+  const audioResult = await persistAudio(mobilePendingAudio, "");
   const entry = makeEntry({
     ...seed,
     id: crypto.randomUUID ? crypto.randomUUID() : `entry-${Date.now()}`,
     note,
     image: imageResult.image,
     imageId: imageResult.imageId,
+    audio: audioResult.audio,
+    audioId: audioResult.audioId,
     sessionId: state.currentSessionId,
     capturedAt: now,
     createdAt: now,
@@ -3103,6 +3359,7 @@ async function saveMobileEntry(event) {
   const dialog = document.getElementById("mobileCaptureDialog");
   if (dialog?.open && typeof dialog.close === "function") dialog.close();
   mobilePendingImage = "";
+  mobilePendingAudio = "";
   const saveButton = document.getElementById("mobileSaveEntry");
   if (saveButton) {
     const original = saveButton.textContent;
@@ -3453,6 +3710,7 @@ function entryCard(entry, compact = false) {
   }
   card.append(main);
   if (entryHasImage(entry)) { const img = document.createElement("img"); img.className = "entry-thumb"; img.src = imageSrcFor(entry); img.alt = entry.title || "Trail Muse attachment"; card.append(img); }
+  if (entryHasAudio(entry)) { const au = document.createElement("audio"); au.className = "entry-audio"; au.controls = true; au.preload = "metadata"; au.src = audioSrcFor(entry); card.append(au); }
   return card;
 }
 

@@ -1,4 +1,4 @@
-# FI-077 Trail Muse v2.9.0
+# FI-077 Trail Muse v2.10.0
 
 A local-first, monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers. Trail Muse runs as static HTML, CSS, and a single `app.js`, with no build step. All data stays in the browser and is included in full JSON archive exports.
 
@@ -30,6 +30,16 @@ Trail Muse records ISO date/time values when a hike starts, when it finishes, an
 - Archive Health includes a guarded **Clear all stored data** control that requires typing `CLEAR` before deletion is enabled. It removes locally stored hikes, entries, projects, artifacts, custom decks, drafts, backup metadata, and preferences.
 
 ## Changelog
+
+### v2.10.0 (audio notes)
+
+Added "Audio Note" as a field entry type with a short in-app recorder.
+
+- The dialog and Trail Mode both gain a recorder that captures up to ten seconds of sound, then stops on its own. A live countdown shows the time left, and the clip can be played back or removed before saving.
+- Recordings are stored in IndexedDB alongside photos (a second object store in the same media database), mirrored into a runtime cache so cards and exports stay synchronous. Nothing audio-related is written to local storage.
+- Legacy or imported archives migrate inline audio into the store automatically, the same way photos do. JSON exports re-inline each recording as a data URL so an archive stays self-contained and portable.
+- Journal cards play recordings inline with a standard audio control. Audio presence also feeds the "worth returning to" review scoring.
+- Recording needs microphone permission and a browser that supports MediaRecorder. Where either is missing, the recorder reports the problem and the rest of the app is unaffected.
 
 ### v2.9.0 (image store)
 
@@ -78,7 +88,8 @@ Removed source is snapshotted in `archive/removed-legacy-code.js` for reference.
 
 - After a release, an open tab keeps serving the previous cached shell until it is closed and reopened, since the new service worker activates on next load.
 - Analytics and exports operate on locally stored data only. There is no sync or backup beyond manual JSON export.
-- Field photos are stored in IndexedDB, whose quota is far larger than local storage but still finite and browser-managed. If IndexedDB is unavailable (for example some private-browsing modes), photos fall back to inline storage and the older local-storage cap applies.
+- Field photos and audio recordings are stored in IndexedDB, whose quota is far larger than local storage but still finite and browser-managed. If IndexedDB is unavailable (for example some private-browsing modes), media falls back to inline storage and the older local-storage cap applies.
+- Audio capture depends on the browser MediaRecorder API and microphone permission. Recording format follows whatever the browser produces (commonly WebM/Opus, or MP4/AAC on Safari); playback uses the same data, so a clip recorded in one browser plays back anywhere that supports its format.
 - The desktop layout and the phone Trail Mode share state but are separate interfaces. Very narrow desktop windows fall back to Trail Mode below 800px.
 
 ## License

@@ -800,6 +800,33 @@ body.dark .capture-icon { color: #111; background: radial-gradient(circle at 35%
   object-fit: cover;
   filter: grayscale(1) contrast(1.15);
 }
+
+.audio-field { display: grid; gap: 0.4rem; margin-top: 0.5rem; }
+.audio-field-label { font-size: 0.82rem; letter-spacing: 0.02em; opacity: 0.85; }
+.audio-controls { display: flex; align-items: center; gap: 0.6rem; flex-wrap: wrap; }
+.record-timer {
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+}
+.audio-preview-wrap { display: grid; gap: 0.6rem; justify-items: start; margin-top: 0.6rem; }
+.audio-preview-wrap audio { width: min(22rem, 100%); }
+.entry-audio { display: block; width: 100%; margin-top: 0.65rem; }
+.mobile-audio { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.mobile-audio-preview { display: grid; gap: 10px; margin-bottom: 14px; }
+.mobile-audio-preview audio { width: 100%; }
+.mobile-audio-btn {
+  min-height: 46px;
+  padding: 0 18px;
+  border: 1.5px solid #777;
+  border-radius: 15px;
+  background: #fff;
+  color: #111;
+  font-weight: 800;
+}
 .spacer { flex: 1; }
 
 body.printing .rail,

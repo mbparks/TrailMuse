@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<!-- FI-077 Trail Muse v2.9.0 | IndexedDB image store, storage-quota guard -->
+<!-- FI-077 Trail Muse v2.10.0 | Audio Note type, 10s recorder, IndexedDB audio store -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>FI-077 Trail Muse v2.9.0</title>
+  <title>FI-077 Trail Muse v2.10.0</title>
   <meta name="description" content="Trail Muse is a mobile-first monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png" />
   <meta name="theme-color" content="#111111" />
-  <link rel="stylesheet" href="styles.css?v=2.9.0" />
+  <link rel="stylesheet" href="styles.css?v=2.10.0" />
   <style id="mobileCriticalStyles">
     .mobile-field-app{display:none}
     @media (max-width:800px){
@@ -94,12 +94,21 @@
     <dialog id="mobileCaptureDialog" class="mobile-sheet">
       <form method="dialog" id="mobileCaptureForm">
         <div class="mobile-sheet-handle"></div><div class="mobile-sheet-head"><div><small>NEW FIELD ENTRY</small><h2 id="mobileCaptureTitle">Capture</h2></div><button value="cancel" type="button" id="mobileCaptureClose">×</button></div>
-        <div id="mobileTypeChooser" class="mobile-type-grid"><button data-mobile-type="Trail Thought" type="button">☁<span>Thought</span></button><button data-mobile-type="Photography Note" type="button">▧<span>Photo</span></button><button data-mobile-type="Found Object" type="button">◈<span>Object</span></button><button data-mobile-type="Small Discovery" type="button">✶<span>Discovery</span></button><button data-mobile-type="Sensory Note" type="button">◌<span>Sensory</span></button><button data-mobile-type="Writing Note" type="button">¶<span>Writing</span></button></div>
+        <div id="mobileTypeChooser" class="mobile-type-grid"><button data-mobile-type="Trail Thought" type="button">☁<span>Thought</span></button><button data-mobile-type="Photography Note" type="button">▧<span>Photo</span></button><button data-mobile-type="Audio Note" type="button">♪<span>Audio</span></button><button data-mobile-type="Found Object" type="button">◈<span>Object</span></button><button data-mobile-type="Small Discovery" type="button">✶<span>Discovery</span></button><button data-mobile-type="Sensory Note" type="button">◌<span>Sensory</span></button><button data-mobile-type="Writing Note" type="button">¶<span>Writing</span></button></div>
         <div id="mobileCaptureFields" hidden>
           <input id="mobileCaptureType" type="hidden" />
           <textarea id="mobileCaptureNote" rows="6" placeholder="What did you notice?"></textarea>
           <label class="mobile-photo-input">Add photo<input id="mobileCaptureImage" type="file" accept="image/*" capture="environment" /></label>
           <img id="mobileCapturePreview" class="mobile-capture-preview" hidden alt="Selected field image" />
+          <div class="mobile-audio">
+            <button type="button" id="mobileCaptureRecord" class="mobile-audio-btn">● Record 10s</button>
+            <button type="button" id="mobileCaptureStopRecord" class="mobile-audio-btn" hidden>■ Stop</button>
+            <span id="mobileCaptureRecordTimer" hidden></span>
+          </div>
+          <div id="mobileCaptureAudioWrap" class="mobile-audio-preview" hidden>
+            <audio id="mobileCapturePreviewAudio" controls preload="metadata"></audio>
+            <button type="button" id="mobileCaptureRemoveAudio" class="mobile-audio-btn">Remove recording</button>
+          </div>
           <button class="mobile-primary" id="mobileSaveEntry" type="submit">Save entry</button>
         </div>
       </form>
@@ -156,7 +165,7 @@
     <aside class="rail" aria-label="Primary navigation">
       <div class="rail-title">
         <span>Trail Muse</span>
-        <small>v2.9.0</small>
+        <small>v2.10.0</small>
       </div>
       <nav class="nav-list" id="navList">
         <button class="nav-item active" data-view="muse" type="button"><span>✦</span><b>Muse</b></button>
@@ -167,7 +176,7 @@
       <div class="rail-foot">
         <button class="rail-theme-toggle" id="desktopThemeToggle" type="button" aria-label="Switch to dark mode"><span aria-hidden="true">◐</span><b>Dark mode</b></button>
         <p id="saveIndicator">Saved</p>
-        <p class="version">FI-077 · v2.9.0</p>
+        <p class="version">FI-077 · v2.10.0</p>
       </div>
     </aside>
 
@@ -789,6 +798,20 @@
         <button class="secondary compact" id="removeImage" type="button">Remove image</button>
       </div>
 
+      <div class="audio-field">
+        <span class="audio-field-label">Field recording (up to 10 seconds)</span>
+        <div class="audio-controls">
+          <button class="secondary compact" id="entryRecord" type="button">● Record</button>
+          <button class="secondary compact" id="entryStopRecord" type="button" hidden>■ Stop</button>
+          <span class="record-timer" id="recordTimer" hidden aria-live="polite"></span>
+        </div>
+      </div>
+
+      <div class="audio-preview-wrap" id="audioPreviewWrap" hidden>
+        <audio id="audioPreview" controls preload="metadata"></audio>
+        <button class="secondary compact" id="removeAudio" type="button">Remove recording</button>
+      </div>
+
       <div class="dialog-actions">
         <button class="danger" id="deleteEntry" type="button">Delete</button>
         <div class="spacer"></div>
@@ -859,6 +882,6 @@
 
 
 
-  <script src="app.js?v=2.9.0"></script>
+  <script src="app.js?v=2.10.0"></script>
 </body>
 </html>
