@@ -1,10 +1,149 @@
-const APP_VERSION = "2.8.0";
+const APP_VERSION = "2.9.0";
 const STORAGE_KEY = "fi077_trail_muse_state_v1";
 const DRAFT_KEY = "fi077_trail_muse_entry_draft_v1";
 
 /* Stable unique id used by projects and artifacts. */
 function uid(prefix = "id") {
   return prefix + "-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 9);
+}
+
+/* ---------------------------------------------------------------------------
+   Image store. Field photos live in IndexedDB, not local storage, so a
+   photo-heavy archive never blows the local-storage quota. A runtime cache
+   mirrors the store so rendering and exports can look images up synchronously.
+   If IndexedDB is unavailable, images fall back to inline data URLs on the
+   entry, which preserves behavior at the cost of the quota relief.
+--------------------------------------------------------------------------- */
+const IMAGE_DB = "trail-muse";
+const IMAGE_STORE = "images";
+const imageCache = new Map();
+
+function imageDbAvailable() {
+  return typeof indexedDB !== "undefined" && indexedDB !== null;
+}
+
+function openImageDb() {
+  return new Promise((resolve, reject) => {
+    if (!imageDbAvailable()) { reject(new Error("IndexedDB unavailable")); return; }
+    const request = indexedDB.open(IMAGE_DB, 1);
+    request.onupgradeneeded = () => {
+      const db = request.result;
+      if (!db.objectStoreNames.contains(IMAGE_STORE)) db.createObjectStore(IMAGE_STORE);
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+function idbWrite(action) {
+  return openImageDb().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(IMAGE_STORE, "readwrite");
+    action(tx.objectStore(IMAGE_STORE));
+    tx.oncomplete = () => { db.close(); resolve(true); };
+    tx.onerror = () => { db.close(); reject(tx.error); };
+    tx.onabort = () => { db.close(); reject(tx.error); };
+  }));
+}
+
+function idbPutImage(id, dataUrl) { return idbWrite(store => store.put(dataUrl, id)); }
+function idbDeleteImage(id) { return idbWrite(store => store.delete(id)); }
+function idbClearImages() { return idbWrite(store => store.clear()); }
+
+function idbGetAllImages() {
+  return openImageDb().then(db => new Promise((resolve, reject) => {
+    const tx = db.transaction(IMAGE_STORE, "readonly");
+    const store = tx.objectStore(IMAGE_STORE);
+    const map = new Map();
+    const cursor = store.openCursor();
+    cursor.onsuccess = () => { const c = cursor.result; if (c) { map.set(c.key, c.value); c.continue(); } };
+    tx.oncomplete = () => { db.close(); resolve(map); };
+    tx.onerror = () => { db.close(); reject(tx.error); };
+  }));
+}
+
+/* Synchronous lookups used everywhere images are shown or exported. */
+function imageSrcFor(entry) {
+  if (!entry) return "";
+  if (entry.imageId && imageCache.has(entry.imageId)) return imageCache.get(entry.imageId);
+  if (entry.image) return entry.image;
+  return "";
+}
+function entryHasImage(entry) {
+  return Boolean(entry && (entry.imageId ? imageCache.has(entry.imageId) || entry.image : entry.image));
+}
+
+/* Load the store into the cache, then migrate any inline images into it. Runs
+   its body at most once even if boot fires more than once. */
+let imagesReady = null;
+function loadImagesFromDb() {
+  if (!imageDbAvailable()) return Promise.resolve();
+  if (imagesReady) return imagesReady;
+  imagesReady = (async () => {
+    try {
+      const map = await idbGetAllImages();
+      map.forEach((value, key) => imageCache.set(key, value));
+    } catch (error) {
+      console.warn("Trail Muse could not load stored images.", error);
+      return;
+    }
+    await migrateInlineImages();
+  })();
+  return imagesReady;
+}
+
+/* Move any entry that still carries an inline data URL into the store. Runs on
+   boot for legacy archives and after import for portable JSON archives. Calls
+   are serialized so two triggers can never race and duplicate a blob. */
+let migrateChain = Promise.resolve();
+function migrateInlineImages() {
+  migrateChain = migrateChain.then(() => runInlineImageMigration());
+  return migrateChain;
+}
+async function runInlineImageMigration() {
+  if (!imageDbAvailable()) return;
+  let changed = false;
+  for (const entry of state.entries) {
+    if (!entry.image) continue;
+    const id = entry.imageId || uid("img");
+    try {
+      await idbPutImage(id, entry.image);
+      imageCache.set(id, entry.image);
+      entry.imageId = id;
+      delete entry.image;
+      changed = true;
+    } catch (error) {
+      console.warn("Trail Muse could not move an image into IndexedDB; keeping it inline.", error);
+    }
+  }
+  if (changed) saveState();
+}
+
+/* Persist the current dialog/mobile image and return the id to store on the
+   entry. Falls back to an inline data URL if IndexedDB write fails. */
+async function persistImage(dataUrl, existingImageId = "") {
+  if (dataUrl) {
+    const id = existingImageId || uid("img");
+    try {
+      await idbPutImage(id, dataUrl);
+      imageCache.set(id, dataUrl);
+      return { imageId: id, image: "" };
+    } catch (error) {
+      console.warn("Trail Muse stored an image inline as a fallback.", error);
+      return { imageId: "", image: dataUrl };
+    }
+  }
+  if (existingImageId) {
+    imageCache.delete(existingImageId);
+    idbDeleteImage(existingImageId).catch(() => {});
+  }
+  return { imageId: "", image: "" };
+}
+
+function forgetEntryImage(entry) {
+  if (entry?.imageId) {
+    imageCache.delete(entry.imageId);
+    idbDeleteImage(entry.imageId).catch(() => {});
+  }
 }
 
 const entryTypes = [
@@ -294,12 +433,13 @@ let activeDialogIsNew = true;
 
 const els = {};
 
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
   cacheElements();
   hydrateStaticControls();
   bindEvents();
   applyTheme();
   renderCaptureGrid();
+  await loadImagesFromDb();
   renderAll();
   initMobileFieldApp();
   registerServiceWorker();
@@ -1071,7 +1211,12 @@ function normalizeSessionForV14(session = {}) {
 
 function saveState() {
   state.lastSaved = new Date().toISOString();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (error) {
+    console.warn("Trail Muse could not save (local storage may be full).", error);
+    flashSaved("Storage is full. Export a JSON backup and clear space.");
+  }
   renderSaveIndicator();
 }
 
@@ -1210,6 +1355,7 @@ function makeEntry(overrides = {}) {
     status: "Raw Capture",
     favorite: false,
     image: "",
+    imageId: "",
     specimenName: "",
     specimenMaterial: "",
     specimenTexture: "",
@@ -1277,7 +1423,7 @@ function renderCaptureGrid() {
 function openEntryDialog(seed = {}) {
   isPopulatingDialog = true;
   activeDialogIsNew = !seed.id;
-  pendingImageData = seed.image || "";
+  pendingImageData = seed.image || imageSrcFor(seed) || "";
   els.entryForm.reset();
   const session = getCurrentSession();
   els.entryId.value = seed.id || "";
@@ -1351,9 +1497,11 @@ function closeDialog() {
   else els.dialog.removeAttribute("open");
 }
 
-function saveEntryFromDialog(keepOpen, mode = "standard") {
+async function saveEntryFromDialog(keepOpen, mode = "standard") {
   const id = els.entryId.value;
   const now = new Date().toISOString();
+  const existing = id ? state.entries.find(entry => entry.id === id) : null;
+  const imageResult = await persistImage(pendingImageData, existing?.imageId || "");
   const values = {
     type: els.entryType.value,
     status: els.entryStatus.value,
@@ -1374,7 +1522,8 @@ function saveEntryFromDialog(keepOpen, mode = "standard") {
     terrain: els.entryTerrain.value,
     pace: els.entryPace.value,
     tags: normalizeTags(els.entryTags.value),
-    image: pendingImageData,
+    image: imageResult.image,
+    imageId: imageResult.imageId,
     specimenName: els.specimenName.value.trim(),
     specimenMaterial: els.specimenMaterial.value.trim(),
     specimenTexture: els.specimenTexture.value.trim(),
@@ -1552,6 +1701,7 @@ function deleteCurrentEntry() {
   if (!id) return;
   const ok = confirm("Delete this field note? This cannot be undone.");
   if (!ok) return;
+  forgetEntryImage(state.entries.find(entry => entry.id === id));
   state.entries = state.entries.filter(entry => entry.id !== id);
   saveState();
   renderAll();
@@ -1666,7 +1816,7 @@ function sessionStats(session) {
   const queue = entries.filter(entry => entry.action && entry.status !== "Archived");
   const finished = entries.filter(entry => entry.status === "Finished");
   const favorites = entries.filter(entry => entry.favorite);
-  const images = entries.filter(entry => entry.image);
+  const images = entries.filter(entryHasImage);
   const best = entries.slice().sort((a, b) => reviewScore(b) - reviewScore(a))[0] || null;
   return { entries, queue, finished, favorites, images, best };
 }
@@ -1887,6 +2037,7 @@ function toggleArchive(id) {
 function deleteEntry(id) {
   const ok = confirm("Delete this field note? This cannot be undone.");
   if (!ok) return;
+  forgetEntryImage(state.entries.find(entry => entry.id === id));
   state.entries = state.entries.filter(entry => entry.id !== id);
   saveState();
   renderAll();
@@ -2040,7 +2191,7 @@ function reviewScore(entry) {
   if (entry.status === "In Progress") score += 5;
   if (entry.status === "Finished") score += 4;
   if (entry.status === "Worth Returning To") score += 3;
-  if (entry.image) score += 3;
+  if (entryHasImage(entry)) score += 3;
   if (entry.action) score += 3;
   if ((entry.note || "").length > 120) score += 2;
   if (entry.prompt) score += 1;
@@ -2062,7 +2213,7 @@ function strongestReason(entry) {
   if (entry.action) reasons.push(`next action: ${entry.action}`);
   if (entry.project) reasons.push(`project: ${entry.project}`);
   if (entry.priority && entry.priority !== "Normal") reasons.push(`${entry.priority.toLowerCase()} priority`);
-  if (entry.image) reasons.push("has a contact print");
+  if (entryHasImage(entry)) reasons.push("has a contact print");
   if (splitTags(entry.tags).length) reasons.push(`signals: ${splitTags(entry.tags).slice(0, 3).join(", ")}`);
   return reasons.length ? reasons.join(" · ") : "This exposure rises to the top because it has enough detail to review further.";
 }
@@ -2180,11 +2331,20 @@ function exportJson() {
   state.lastBackupAt = new Date().toISOString();
   saveState();
   renderStudio();
+  const exportState = {
+    ...state,
+    entries: state.entries.map(entry => {
+      const src = imageSrcFor(entry);
+      const copy = { ...entry };
+      if (src) copy.image = src; else delete copy.image;
+      return copy;
+    })
+  };
   const payload = {
     app: "FI-077 Trail Muse",
     version: APP_VERSION,
     exportedAt: new Date().toISOString(),
-    state
+    state: exportState
   };
   downloadText(`trail-muse-${dateStamp()}.json`, JSON.stringify(payload, null, 2), "application/json");
 }
@@ -2193,10 +2353,11 @@ function importJson(event) {
   const file = event.target.files?.[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = () => {
+  reader.onload = async () => {
     try {
       const parsed = JSON.parse(reader.result);
       const isHikePackage = Boolean(parsed?.session && Array.isArray(parsed?.entries));
+      // (async onload)
 
       if (isHikePackage) {
         const importedSession = normalizeSessionForV14(parsed.session);
@@ -2217,6 +2378,7 @@ function importJson(event) {
         if (existing) state.entries = state.entries.filter(entry => entry.sessionId !== importedSession.id);
         state.entries = [...state.entries, ...importedEntries];
         saveState();
+        await migrateInlineImages();
         renderAll();
         if (els.sessionFilter) els.sessionFilter.value = importedSession.id;
         renderJournal();
@@ -2239,6 +2401,7 @@ function importJson(event) {
       };
       if (!["list", "contact"].includes(state.journalLayout)) state.journalLayout = "contact";
       saveState();
+      await migrateInlineImages();
       applyTheme();
       renderAll();
       flashSaved("Trail Muse archive imported");
@@ -2316,7 +2479,7 @@ function exportPrintCss() {
 function exportEntryArticleHtml(entry, options = {}) {
   entry = normalizeEntryForV13(entry);
   const includeImage = options.includeImage !== false;
-  const image = includeImage && entry.image ? `<img src="${entry.image}" alt="${escapeHtml(entry.title || "Trail Muse attachment")}">` : "";
+  const image = includeImage && entryHasImage(entry) ? `<img src="${imageSrcFor(entry)}" alt="${escapeHtml(entry.title || "Trail Muse attachment")}">` : "";
   const tags = splitTags(entry.tags);
   const chips = [entry.type, entry.status, sessionNameForEntry(entry), entry.location, entry.mood, entry.light, entry.weather, entry.terrain, entry.pace]
     .filter(Boolean)
@@ -2350,7 +2513,7 @@ function exportContactSheet() {
   }
   const cards = entries.map((entry, index) => `
     <article class="contact-card">
-      <figure>${entry.image ? `<img src="${entry.image}" alt="${escapeHtml(entry.title || "Trail Muse contact print")}">` : `<div class="placeholder">${entry.type === "Photography Note" ? "▧" : "✦"}</div>`}</figure>
+      <figure>${entryHasImage(entry) ? `<img src="${imageSrcFor(entry)}" alt="${escapeHtml(entry.title || "Trail Muse contact print")}">` : `<div class="placeholder">${entry.type === "Photography Note" ? "▧" : "✦"}</div>`}</figure>
       <p class="meta">Frame ${String(index + 1).padStart(2, "0")} · ${escapeHtml(entry.type)} · score ${reviewScore(entry)}</p>
       <h3>${escapeHtml(entry.favorite ? `★ ${entry.title || "Untitled"}` : entry.title || "Untitled exposure")}</h3>
       <p class="meta">${escapeHtml(entry.status)}${sessionNameForEntry(entry) ? ` · ${escapeHtml(sessionNameForEntry(entry))}` : ""}</p>
@@ -2392,7 +2555,7 @@ function exportZineSheet() {
     <article class="zine-page">
       <p class="eyebrow">Page ${index + 1} · ${escapeHtml(entry.type)}</p>
       <h2>${escapeHtml(entry.title || "Untitled exposure")}</h2>
-      ${entry.image ? `<img src="${entry.image}" alt="${escapeHtml(entry.title || "zine image")}">` : `<div class="placeholder">${index + 1}</div>`}
+      ${entryHasImage(entry) ? `<img src="${imageSrcFor(entry)}" alt="${escapeHtml(entry.title || "zine image")}">` : `<div class="placeholder">${index + 1}</div>`}
       <p>${escapeHtml((entry.note || entry.prompt || nextStepForEntry(entry)).slice(0, 260))}</p>
       ${entry.action ? `<p class="meta">Make later: ${escapeHtml(entry.action)}</p>` : ""}
       ${splitTags(entry.tags).length ? `<p class="tags">${splitTags(entry.tags).slice(0, 4).map(tag => `#${escapeHtml(tag)}`).join(" ")}</p>` : ""}
@@ -2435,7 +2598,7 @@ body { background: #efeee8; }
 function exportHtmlGallery() {
   const entries = state.entries
     .map(normalizeEntryForV13)
-    .filter(entry => entry.image)
+    .filter(entryHasImage)
     .sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
   if (!entries.length) {
     alert("There are no photo or sketch attachments to export as a gallery yet.");
@@ -2443,7 +2606,7 @@ function exportHtmlGallery() {
   }
   const cards = entries.map(entry => `
     <article class="gallery-card">
-      <img src="${entry.image}" alt="${escapeHtml(entry.title || "Trail Muse gallery image")}">
+      <img src="${imageSrcFor(entry)}" alt="${escapeHtml(entry.title || "Trail Muse gallery image")}">
       <h2>${escapeHtml(entry.title || "Untitled exposure")}</h2>
       <p class="meta">${escapeHtml(entry.type)} · ${escapeHtml(formatDate(entry.createdAt))}${sessionNameForEntry(entry) ? ` · ${escapeHtml(sessionNameForEntry(entry))}` : ""}</p>
       <p>${escapeHtml(entry.note || entry.prompt || "No caption yet.")}</p>
@@ -2564,7 +2727,7 @@ function exportMarkdownArchive() {
     if (entry.nextStep) lines.push(`- Next step: ${markdownText(entry.nextStep)}`);
     if (entry.finishedNote) lines.push(`- Finished work: ${markdownText(entry.finishedNote)}`);
     if (tags) lines.push(`- Tags: ${tags}`);
-    if (entry.image) lines.push(`- Attachment: embedded in HTML/JSON exports; omitted from Markdown for portability.`);
+    if (entryHasImage(entry)) lines.push(`- Attachment: embedded in HTML/JSON exports; omitted from Markdown for portability.`);
     if (entry.prompt) { lines.push(""); lines.push(`> ${markdownText(entry.prompt).replace(/\n/g, "\n> ")}`); }
     if (entry.note) { lines.push(""); lines.push(markdownText(entry.note)); }
     if (isSpecimenEntry(entry)) {
@@ -2642,11 +2805,14 @@ function confirmClearAllData(event) {
   clearAllData();
 }
 
-function clearAllData() {
+async function clearAllData() {
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(DRAFT_KEY);
+  imageCache.clear();
+  if (imageDbAvailable()) { try { await idbClearImages(); } catch (error) { console.warn("Trail Muse could not clear stored images.", error); } }
   state = defaultState();
   pendingImageData = "";
+  mobilePendingImage = "";
   closeClearAllDialog();
   applyTheme();
   renderAll();
@@ -2840,7 +3006,7 @@ function openMobileEntries() {
         <div class="mobile-entry-index">${String(entries.length - index).padStart(2, "0")}</div>
         <div class="mobile-entry-copy">
           <div class="mobile-entry-meta"><strong>${escapeHtml(entry.type || "Field entry")}</strong><span>${escapeHtml(time)}</span></div>
-          ${entry.image ? `<img src="${entry.image}" alt="Field entry image" />` : ""}
+          ${entryHasImage(entry) ? `<img src="${imageSrcFor(entry)}" alt="Field entry image" />` : ""}
           <p>${escapeHtml(entry.note || entry.prompt || entry.title || "Saved exposure")}</p>
         </div>`;
       list.append(card);
@@ -2908,7 +3074,7 @@ function handleMobileImage(event) {
   reader.readAsDataURL(file);
 }
 
-function saveMobileEntry(event) {
+async function saveMobileEntry(event) {
   event.preventDefault();
   const type = document.getElementById("mobileCaptureType").value || "Trail Thought";
   const note = document.getElementById("mobileCaptureNote").value.trim();
@@ -2918,11 +3084,13 @@ function saveMobileEntry(event) {
   }
   const seed = quickCaptureSeed(type);
   const now = new Date().toISOString();
+  const imageResult = await persistImage(mobilePendingImage, "");
   const entry = makeEntry({
     ...seed,
     id: crypto.randomUUID ? crypto.randomUUID() : `entry-${Date.now()}`,
     note,
-    image: mobilePendingImage,
+    image: imageResult.image,
+    imageId: imageResult.imageId,
     sessionId: state.currentSessionId,
     capturedAt: now,
     createdAt: now,
@@ -3284,7 +3452,7 @@ function entryCard(entry, compact = false) {
     main.append(actions);
   }
   card.append(main);
-  if (entry.image) { const img = document.createElement("img"); img.className = "entry-thumb"; img.src = entry.image; img.alt = entry.title || "Trail Muse attachment"; card.append(img); }
+  if (entryHasImage(entry)) { const img = document.createElement("img"); img.className = "entry-thumb"; img.src = imageSrcFor(entry); img.alt = entry.title || "Trail Muse attachment"; card.append(img); }
   return card;
 }
 
@@ -3310,7 +3478,7 @@ function renderStudio() {
     if (!project) els.studioProjectCaptures.innerHTML = '<p class="entry-meta">No project selected.</p>';
     else projectEntries(project).forEach(entry => {
       const card = document.createElement("article"); card.className = "studio-source-card";
-      card.innerHTML = `${entry.image ? `<img src="${entry.image}" alt="">` : ""}<div><p class="eyebrow">${escapeHtml(entry.type)}</p><h4>${escapeHtml(entry.title || "Untitled capture")}</h4><p>${escapeHtml(entry.note || entry.prompt || "No note")}</p></div>`;
+      card.innerHTML = `${entryHasImage(entry) ? `<img src="${imageSrcFor(entry)}" alt="">` : ""}<div><p class="eyebrow">${escapeHtml(entry.type)}</p><h4>${escapeHtml(entry.title || "Untitled capture")}</h4><p>${escapeHtml(entry.note || entry.prompt || "No note")}</p></div>`;
       els.studioProjectCaptures.append(card);
     });
   }
@@ -3369,7 +3537,7 @@ function exportCurrentProjectJson() { const project = currentStudioProject(); if
 function exportCurrentProjectHtml() {
   const project = currentStudioProject(); if (!project) return alert("Select a project first.");
   const payload = projectExportPayload(project);
-  const captures = payload.entries.map(entry => `<article><h2>${escapeHtml(entry.title || "Untitled capture")}</h2><p>${escapeHtml(entry.note || entry.prompt || "")}</p>${entry.image ? `<img src="${entry.image}" alt="">` : ""}</article>`).join("");
+  const captures = payload.entries.map(entry => `<article><h2>${escapeHtml(entry.title || "Untitled capture")}</h2><p>${escapeHtml(entry.note || entry.prompt || "")}</p>${entryHasImage(entry) ? `<img src="${imageSrcFor(entry)}" alt="">` : ""}</article>`).join("");
   const artifacts = payload.artifacts.map(artifact => `<article><h2>${escapeHtml(artifact.title)}</h2><p><strong>${escapeHtml(artifact.type)} · ${escapeHtml(artifact.status)}</strong></p><p>${escapeHtml(artifact.notes || "")}</p></article>`).join("");
   const html = `<!doctype html><html><head><meta charset="utf-8"><title>${escapeHtml(project.name)}</title><style>body{font-family:Georgia,serif;max-width:920px;margin:auto;padding:40px;background:#eee;color:#111}header,article{background:#fff;padding:24px;margin:0 0 20px;border:1px solid #aaa}img{max-width:100%;filter:grayscale(1)}small{letter-spacing:.1em;text-transform:uppercase}</style></head><body><header><small>Trail Muse Project</small><h1>${escapeHtml(project.name)}</h1><p>${escapeHtml(project.description || "")}</p></header><h2>Finished artifacts</h2>${artifacts || "<p>No artifacts recorded.</p>"}<h2>Source captures</h2>${captures || "<p>No captures assigned.</p>"}</body></html>`;
   downloadText(`trail-muse-project-${slugify(project.name)}-${dateStamp()}.html`, html, "text/html");
@@ -3395,7 +3563,7 @@ function renderAnalytics() {
   const completed = sessions.filter(session => session.finishTimestamp || session.endedAt);
   const durationMs = sessions.reduce((sum, session) => sum + sessionDurationMs(session), 0);
   const assigned = entries.filter(entry => String(entry.project || "").trim()).length;
-  const photos = entries.filter(entry => entry.image || entry.type === "Photography Note").length;
+  const photos = entries.filter(entry => entryHasImage(entry) || entry.type === "Photography Note").length;
   const prompts = entries.filter(entry => entry.prompt || entry.promptText || entry.type === "Prompt Response").length;
   const avgPerHike = sessions.length ? entries.length / sessions.length : entries.length;
   const avgGap = averageCaptureGap(entries);

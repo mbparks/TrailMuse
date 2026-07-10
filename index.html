@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<!-- FI-077 Trail Muse v2.8.0 | offline PWA: service worker, icons, manifest -->
+<!-- FI-077 Trail Muse v2.9.0 | IndexedDB image store, storage-quota guard -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>FI-077 Trail Muse v2.8.0</title>
+  <title>FI-077 Trail Muse v2.9.0</title>
   <meta name="description" content="Trail Muse is a mobile-first monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png" />
   <meta name="theme-color" content="#111111" />
-  <link rel="stylesheet" href="styles.css?v=2.8.0" />
+  <link rel="stylesheet" href="styles.css?v=2.9.0" />
   <style id="mobileCriticalStyles">
     .mobile-field-app{display:none}
     @media (max-width:800px){
@@ -156,7 +156,7 @@
     <aside class="rail" aria-label="Primary navigation">
       <div class="rail-title">
         <span>Trail Muse</span>
-        <small>v2.8.0</small>
+        <small>v2.9.0</small>
       </div>
       <nav class="nav-list" id="navList">
         <button class="nav-item active" data-view="muse" type="button"><span>✦</span><b>Muse</b></button>
@@ -167,7 +167,7 @@
       <div class="rail-foot">
         <button class="rail-theme-toggle" id="desktopThemeToggle" type="button" aria-label="Switch to dark mode"><span aria-hidden="true">◐</span><b>Dark mode</b></button>
         <p id="saveIndicator">Saved</p>
-        <p class="version">FI-077 · v2.8.0</p>
+        <p class="version">FI-077 · v2.9.0</p>
       </div>
     </aside>
 
@@ -859,6 +859,6 @@
 
 
 
-  <script src="app.js?v=2.8.0"></script>
+  <script src="app.js?v=2.9.0"></script>
 </body>
 </html>

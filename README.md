@@ -1,4 +1,4 @@
-# FI-077 Trail Muse v2.8.0
+# FI-077 Trail Muse v2.9.0
 
 A local-first, monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers. Trail Muse runs as static HTML, CSS, and a single `app.js`, with no build step. All data stays in the browser and is included in full JSON archive exports.
 
@@ -30,6 +30,17 @@ Trail Muse records ISO date/time values when a hike starts, when it finishes, an
 - Archive Health includes a guarded **Clear all stored data** control that requires typing `CLEAR` before deletion is enabled. It removes locally stored hikes, entries, projects, artifacts, custom decks, drafts, backup metadata, and preferences.
 
 ## Changelog
+
+### v2.9.0 (image store)
+
+Field photos now live in IndexedDB instead of local storage, so a photo-heavy archive no longer risks filling the local-storage quota.
+
+- Entries carry a small `imageId` reference. The image bytes are kept in an IndexedDB store ("trail-muse" / "images"), mirrored into a runtime cache so rendering and exports stay synchronous.
+- Legacy archives migrate automatically on load: any entry still holding an inline data URL is moved into IndexedDB once, then dropped from the saved state. The same migration runs after a JSON import, so imported photos are absorbed too.
+- JSON exports re-inline each image as a data URL, so a `.json` archive stays fully self-contained and portable to another device.
+- Migration is serialized and boot-load runs once, so a double trigger (for example a boot that overlaps an import) can never race or duplicate a stored image.
+- `saveState` now guards against a full-storage error and warns the user to export a backup instead of failing silently.
+- If IndexedDB is unavailable, images fall back to inline data URLs on the entry, preserving behavior without the quota relief.
 
 ### v2.8.0 (offline field support)
 
@@ -67,7 +78,7 @@ Removed source is snapshotted in `archive/removed-legacy-code.js` for reference.
 
 - After a release, an open tab keeps serving the previous cached shell until it is closed and reopened, since the new service worker activates on next load.
 - Analytics and exports operate on locally stored data only. There is no sync or backup beyond manual JSON export.
-- Field photos are stored as data URLs in local storage, which has a size cap. A photo-heavy archive can approach that cap. Moving image blobs to IndexedDB is a planned improvement.
+- Field photos are stored in IndexedDB, whose quota is far larger than local storage but still finite and browser-managed. If IndexedDB is unavailable (for example some private-browsing modes), photos fall back to inline storage and the older local-storage cap applies.
 - The desktop layout and the phone Trail Mode share state but are separate interfaces. Very narrow desktop windows fall back to Trail Mode below 800px.
 
 ## License
