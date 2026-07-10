@@ -1,12 +1,30 @@
 <!DOCTYPE html>
+<!-- FI-077 Trail Muse v2.7.9 | cleanup pass: dead-code removal, uid() fix, unified project dialog -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>FI-077 Trail Muse v2.2</title>
+  <title>FI-077 Trail Muse v2.7.9</title>
   <meta name="description" content="Trail Muse is a mobile-first monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers." />
   <link rel="manifest" href="manifest.webmanifest" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=2.7.9" />
+  <style id="mobileCriticalStyles">
+    .mobile-field-app{display:none}
+    @media (max-width:800px){
+      html,body{margin:0!important;min-height:100%!important;background:#ece9e2!important;color:#151515!important;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;-webkit-text-size-adjust:100%}
+      body{overflow-x:hidden!important}.app-shell{display:none!important}.mobile-field-app{display:block!important;min-height:100dvh!important;background:linear-gradient(165deg,#f8f5ee 0%,#dedbd3 58%,#f7f4ed 100%)!important;padding-bottom:max(24px,env(safe-area-inset-bottom))!important}
+      .mobile-field-app *{box-sizing:border-box}.mobile-field-header{min-height:74px!important;padding:calc(12px + env(safe-area-inset-top)) 18px 12px!important;display:flex!important;align-items:center!important;justify-content:space-between!important;position:sticky!important;top:0!important;z-index:50!important;background:rgba(248,246,240,.96)!important;border-bottom:1px solid rgba(0,0,0,.12)!important;backdrop-filter:blur(18px)!important}
+      .mobile-brand{display:flex!important;align-items:center!important;gap:12px!important}.mobile-brand small{display:block!important;font:800 10px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace!important;letter-spacing:.18em!important}.mobile-brand strong{display:block!important;margin-top:2px!important;font:800 25px/1 Georgia,serif!important}.mobile-sigil{display:grid!important;place-items:center!important;width:44px!important;height:44px!important;border-radius:50%!important;background:#111!important;color:#fff!important;font-size:20px!important}.mobile-icon-button{width:48px!important;height:48px!important;border:1px solid #c8c3ba!important;border-radius:50%!important;background:#fff!important;color:#111!important;font-size:22px!important}
+      .mobile-field-main{padding:18px 16px 36px!important}.mobile-stage{display:block!important;width:100%!important;max-width:560px!important;margin:0 auto!important}.mobile-stage[hidden]{display:none!important}.mobile-photo-banner{min-height:178px!important;padding:24px!important;border-radius:26px!important;color:#fff!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;background:linear-gradient(150deg,rgba(255,255,255,.24),transparent 34%),linear-gradient(145deg,#bcbcb8 0 24%,#70706d 24% 48%,#2a2a29 48% 72%,#080808 72%)!important;box-shadow:0 18px 44px rgba(0,0,0,.22)!important}.mobile-photo-banner p{margin:0 0 8px!important;font:800 11px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace!important;letter-spacing:.18em!important}.mobile-photo-banner h2{margin:0 0 8px!important;max-width:10ch!important;font:800 42px/.92 Georgia,serif!important}.mobile-photo-banner span{max-width:31ch!important;font-size:16px!important;line-height:1.35!important}
+      .mobile-session-card{margin-top:16px!important;padding:18px!important;border:1px solid rgba(0,0,0,.12)!important;border-radius:24px!important;background:rgba(255,255,255,.86)!important;box-shadow:0 14px 32px rgba(0,0,0,.08)!important}.mobile-field-label{display:block!important;margin:0 0 14px!important;font-size:15px!important;font-weight:800!important}.mobile-field-label input,.mobile-field-label select,.mobile-field-label textarea{display:block!important;width:100%!important;min-height:58px!important;margin-top:7px!important;padding:14px 15px!important;border:1.5px solid #c7c2b9!important;border-radius:15px!important;background:#fff!important;color:#111!important;font:600 17px/1.25 inherit!important}.mobile-field-label textarea{min-height:112px!important;resize:vertical!important}.mobile-two-col{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important}.mobile-more-fields{margin:0 0 14px!important}.mobile-more-fields summary{min-height:48px!important;padding:12px 2px!important;font-weight:800!important;cursor:pointer!important}.mobile-primary{display:block!important;width:100%!important;min-height:60px!important;padding:15px 18px!important;border:0!important;border-radius:17px!important;background:#111!important;color:#fff!important;font:850 18px/1.1 inherit!important}.mobile-local-note{margin:12px 0 0!important;text-align:center!important;color:#666!important;font-size:13px!important}
+      .mobile-active-header{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;padding:4px 2px 16px!important}.mobile-active-header small,.mobile-sheet-head small,.mobile-prompt-card small{font:800 10px/1.2 ui-monospace,SFMono-Regular,Menlo,monospace!important;letter-spacing:.18em!important}.mobile-active-header h2{margin:5px 0 7px!important;font:800 36px/.98 Georgia,serif!important}.mobile-active-header p{margin:0!important;color:#5d5a54!important;font-size:15px!important}.mobile-text-button{min-height:46px!important;padding:10px 8px!important;border:0!important;background:transparent!important;text-decoration:underline!important;font-size:16px!important;font-weight:800!important}.mobile-count-card{display:grid!important;grid-template-columns:auto 1fr!important;align-items:end!important;gap:0 12px!important;margin-bottom:16px!important;padding:18px 20px!important;border-radius:22px!important;background:#111!important;color:#fff!important}.mobile-count-card strong{grid-row:1/3!important;font:800 50px/.9 Georgia,serif!important}.mobile-count-card span{font-weight:850!important}.mobile-count-card em{font-style:normal!important;color:#bbb!important;font-size:13px!important}
+      .mobile-capture-button{display:grid!important;grid-template-columns:62px 1fr!important;grid-template-rows:auto auto!important;align-items:center!important;column-gap:16px!important;width:100%!important;min-height:132px!important;padding:21px!important;border:0!important;border-radius:28px!important;background:linear-gradient(145deg,#fff,#d8d4cc)!important;color:#111!important;text-align:left!important;box-shadow:0 15px 34px rgba(0,0,0,.14)!important}.mobile-capture-button>span{grid-row:1/3!important;display:grid!important;place-items:center!important;width:62px!important;height:62px!important;border-radius:50%!important;background:#111!important;color:#fff!important;font-size:36px!important}.mobile-capture-button strong{font:800 27px/1 Georgia,serif!important}.mobile-capture-button small{font-size:14px!important;color:#5d5a54!important}.mobile-secondary-action{display:block!important;width:100%!important;min-height:58px!important;margin-top:12px!important;border:1.5px solid #aaa49b!important;border-radius:16px!important;background:rgba(255,255,255,.78)!important;color:#111!important;font:800 16px/1.1 inherit!important}.mobile-prompt-card{margin-top:12px!important;padding:20px!important;border-radius:20px!important;background:#191919!important;color:#fff!important}.mobile-prompt-card p{margin:10px 0 16px!important;font:800 24px/1.18 Georgia,serif!important}.mobile-prompt-card button{min-height:46px!important;padding:11px 14px!important;border:1px solid #777!important;border-radius:12px!important;background:#2b2b2b!important;color:#fff!important;font-weight:800!important}
+      .mobile-recent-section{margin-top:28px!important}.mobile-section-title{display:flex!important;align-items:center!important;justify-content:space-between!important}.mobile-section-title h3{margin:0!important;font:800 25px Georgia,serif!important}.mobile-section-title button{min-height:44px!important;border:0!important;background:transparent!important;text-decoration:underline!important;font-weight:800!important}.mobile-recent-list{display:grid!important;gap:10px!important;margin-top:12px!important}.mobile-recent-card{padding:15px 16px!important;border:1px solid rgba(0,0,0,.1)!important;border-radius:17px!important;background:rgba(255,255,255,.8)!important}.mobile-recent-card strong{display:block!important;font-size:16px!important}.mobile-recent-card p{display:-webkit-box!important;margin:5px 0 0!important;overflow:hidden!important;color:#59564f!important;font-size:14px!important;-webkit-line-clamp:2!important;-webkit-box-orient:vertical!important}.mobile-finish-button{width:100%!important;min-height:60px!important;margin-top:28px!important;border:1.5px solid #111!important;border-radius:17px!important;background:transparent!important;color:#111!important;font:850 17px/1.1 inherit!important}
+      dialog.mobile-sheet{width:100%!important;max-width:560px!important;max-height:92dvh!important;margin:auto 0 0!important;padding:0!important;border:0!important;border-radius:28px 28px 0 0!important;background:#f7f4ed!important;color:#111!important}.mobile-sheet::backdrop{background:rgba(0,0,0,.58)!important;backdrop-filter:blur(3px)!important}.mobile-sheet form{max-height:92dvh!important;padding:10px 18px calc(22px + env(safe-area-inset-bottom))!important;overflow:auto!important}.mobile-sheet-handle{width:54px!important;height:5px!important;margin:0 auto 14px!important;border-radius:99px!important;background:#bbb!important}.mobile-sheet-head{display:flex!important;align-items:flex-start!important;justify-content:space-between!important;margin-bottom:18px!important}.mobile-sheet-head h2{margin:4px 0!important;font:800 34px/1 Georgia,serif!important}.mobile-sheet-head button{width:48px!important;height:48px!important;border:0!important;border-radius:50%!important;background:#e4e0d8!important;font-size:28px!important}.mobile-type-grid{display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important}.mobile-type-grid button{display:flex!important;min-height:118px!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;gap:9px!important;border:1px solid #c8c2b8!important;border-radius:20px!important;background:#fff!important;color:#111!important;font-size:31px!important}.mobile-type-grid span{font-size:16px!important;font-weight:850!important}#mobileCaptureFields textarea{width:100%!important;min-height:190px!important;margin-bottom:12px!important;padding:16px!important;border:1.5px solid #c9c4bb!important;border-radius:16px!important;background:#fff!important;color:#111!important;font:18px/1.45 inherit!important}.mobile-photo-input{display:flex!important;align-items:center!important;justify-content:center!important;min-height:56px!important;margin-bottom:14px!important;border:1.5px dashed #777!important;border-radius:15px!important;font-weight:850!important}.mobile-photo-input input{position:absolute!important;opacity:0!important;pointer-events:none!important}.mobile-capture-preview{display:block!important;width:100%!important;max-height:240px!important;margin:12px 0!important;border-radius:16px!important;object-fit:cover!important;filter:grayscale(1)!important}.mobile-finish-summary{margin-bottom:16px!important;padding:18px!important;border-radius:20px!important;background:#111!important;color:#fff!important}.mobile-finish-summary strong{font:800 44px Georgia,serif!important}.mobile-finish-summary p{margin:5px 0 0!important;color:#ccc!important}
+      [data-theme="dark"] .mobile-field-app{background:linear-gradient(160deg,#171717,#2a2a2a)!important;color:#f5f1e8!important}[data-theme="dark"] .mobile-field-header{background:rgba(18,18,18,.96)!important;border-color:#333!important}[data-theme="dark"] .mobile-session-card,[data-theme="dark"] .mobile-recent-card,[data-theme="dark"] .mobile-capture-button,[data-theme="dark"] .mobile-secondary-action{background:#252525!important;color:#f5f1e8!important;border-color:#444!important}[data-theme="dark"] .mobile-field-label input,[data-theme="dark"] .mobile-field-label select,[data-theme="dark"] .mobile-field-label textarea,[data-theme="dark"] #mobileCaptureFields textarea{background:#171717!important;color:#fff!important;border-color:#555!important}[data-theme="dark"] dialog.mobile-sheet{background:#1c1c1c!important;color:#f5f1e8!important}[data-theme="dark"] .mobile-type-grid button{background:#292929!important;color:#fff!important;border-color:#444!important}
+    }
+    @media (min-width:801px){.mobile-field-app{display:none!important}.app-shell{display:grid!important}}
+  </style>
 </head>
 <body>
   <div class="mobile-field-app" id="mobileFieldApp" aria-label="Trail Muse mobile field mode">
@@ -41,8 +59,11 @@
               <label class="mobile-field-label">Pace<select id="mobileSessionPace"><option value="">Choose</option><option>Walking</option><option>Slow looking</option><option>Photography</option><option>Sketching</option><option>Resting / observing</option></select></label>
             </div>
             <label class="mobile-field-label">Intention<input id="mobileSessionIntent" placeholder="Quiet observation, photography, clearing my head…" /></label>
+            <label class="mobile-field-label">Creative focus<input id="mobileSessionFocus" placeholder="Photography, writing, drawing, sensory attention…" /></label>
+            <label class="mobile-field-label">Companions<input id="mobileSessionCompanions" placeholder="Solo, names, group, dog…" /></label>
+            <label class="mobile-field-label">Opening note<textarea id="mobileSessionNotes" rows="3" placeholder="Anything universal to this hike before you begin…"></textarea></label>
           </details>
-          <button class="mobile-primary mobile-start-button" type="submit">Start hike</button>
+          <button class="mobile-primary mobile-start-button" type="submit">Start trail roll</button>
           <p class="mobile-local-note">Saved on this phone. No network required.</p>
         </form>
       </section>
@@ -53,8 +74,13 @@
           <button id="mobileEditSession" class="mobile-text-button" type="button">Edit</button>
         </div>
         <div class="mobile-count-card"><strong id="mobileEntryCount">0</strong><span>field entries</span><em id="mobileElapsed">Just started</em></div>
-        <button id="mobileNewEntry" class="mobile-capture-button" type="button"><span>＋</span><strong>New field entry</strong><small>One tap. One thought. Keep walking.</small></button>
-        <button id="mobilePrompt" class="mobile-secondary-action" type="button"><span>✦</span> Give me one prompt</button>
+        <div class="mobile-muse-actions" aria-label="New field capture actions">
+          <button id="mobilePrompt" type="button"><span>✦</span><strong>Prompt</strong></button>
+          <button data-mobile-direct-type="Trail Thought" type="button"><span>☁</span><strong>Thought</strong></button>
+          <button data-mobile-direct-type="Photography Note" type="button"><span>▧</span><strong>Photo</strong></button>
+          <button data-mobile-direct-type="Found Object" type="button"><span>◈</span><strong>Object</strong></button>
+          <button data-mobile-direct-type="Small Discovery" type="button"><span>✶</span><strong>Discovery</strong></button>
+        </div>
         <div id="mobilePromptCard" class="mobile-prompt-card" hidden><small>FIELD PROMPT</small><p id="mobilePromptText"></p><button id="mobileSavePrompt" type="button">Save as entry</button></div>
         <section class="mobile-recent-section"><div class="mobile-section-title"><h3>Recent</h3><button id="mobileViewAll" type="button">View all</button></div><div id="mobileRecentEntries" class="mobile-recent-list"></div></section>
         <button id="mobileFinishHike" class="mobile-finish-button" type="button">Finish hike</button>
@@ -75,9 +101,38 @@
       </form>
     </dialog>
 
-    <dialog id="mobileEditSessionDialog" class="mobile-sheet"><form method="dialog" id="mobileEditSessionForm"><div class="mobile-sheet-handle"></div><div class="mobile-sheet-head"><div><small>TRAIL ROLL</small><h2>Edit hike</h2></div><button value="cancel" id="mobileEditClose" type="button">×</button></div><label class="mobile-field-label">Hike name<input id="mobileEditName" /></label><div class="mobile-two-col"><label class="mobile-field-label">Weather<select id="mobileEditWeather"></select></label><label class="mobile-field-label">Terrain<select id="mobileEditTerrain"></select></label></div><label class="mobile-field-label">Intention<input id="mobileEditIntent" /></label><button class="mobile-primary" type="submit">Save hike details</button></form></dialog>
+    <dialog id="mobileEditSessionDialog" class="mobile-sheet">
+      <form method="dialog" id="mobileEditSessionForm">
+        <div class="mobile-sheet-handle"></div>
+        <div class="mobile-sheet-head"><div><small>TRAIL ROLL</small><h2>Edit hike</h2></div><button value="cancel" id="mobileEditClose" type="button">×</button></div>
+        <label class="mobile-field-label">Hike name<input id="mobileEditName" /></label>
+        <div class="mobile-two-col">
+          <label class="mobile-field-label">Weather<select id="mobileEditWeather"></select></label>
+          <label class="mobile-field-label">Terrain<select id="mobileEditTerrain"></select></label>
+          <label class="mobile-field-label">Light<select id="mobileEditLight"></select></label>
+          <label class="mobile-field-label">Pace<select id="mobileEditPace"></select></label>
+        </div>
+        <label class="mobile-field-label">Intention<input id="mobileEditIntent" /></label>
+        <label class="mobile-field-label">Creative focus<input id="mobileEditFocus" /></label>
+        <label class="mobile-field-label">Companions<input id="mobileEditCompanions" /></label>
+        <label class="mobile-field-label">Hike notes<textarea id="mobileEditNotes" rows="4"></textarea></label>
+        <button class="mobile-primary" type="submit">Save hike details</button>
+      </form>
+    </dialog>
 
     <dialog id="mobileFinishDialog" class="mobile-sheet"><form method="dialog" id="mobileFinishForm"><div class="mobile-sheet-handle"></div><div class="mobile-sheet-head"><div><small>END OF TRAIL</small><h2>Expose this hike.</h2></div><button value="cancel" id="mobileFinishClose" type="button">×</button></div><div id="mobileFinishSummary" class="mobile-finish-summary"></div><label class="mobile-field-label">Closing note<textarea id="mobileClosingNote" rows="4" placeholder="What stayed with you?"></textarea></label><button id="mobileCloseAndExport" class="mobile-primary" type="submit">Close hike + export JSON</button><button id="mobileCloseOnly" class="mobile-secondary-action" type="button">Close without export</button></form></dialog>
+
+    <dialog id="mobileEntriesDialog" class="mobile-sheet mobile-entries-sheet">
+      <div class="mobile-sheet-scroll">
+        <div class="mobile-sheet-handle"></div>
+        <div class="mobile-sheet-head mobile-entries-head">
+          <div><small>CURRENT TRAIL ROLL</small><h2>All field entries</h2></div>
+          <button id="mobileEntriesClose" type="button" aria-label="Return to active hike">×</button>
+        </div>
+        <div id="mobileAllEntries" class="mobile-all-entries"></div>
+        <button id="mobileEntriesBack" class="mobile-primary" type="button">Back to hike</button>
+      </div>
+    </dialog>
   </div>
 
   <div class="app-shell" id="appShell">
@@ -91,25 +146,24 @@
       </div>
       <div class="topbar-actions">
         <button class="icon-button mode-toggle" id="themeToggle" type="button" aria-label="Toggle light and dark mode">Dark</button>
-        <button class="primary compact" id="newEntryTop" type="button">Capture</button>
-      </div>
+              </div>
     </header>
 
     <aside class="rail" aria-label="Primary navigation">
       <div class="rail-title">
         <span>Trail Muse</span>
-        <small>v2.2</small>
+        <small>v2.7.9</small>
       </div>
       <nav class="nav-list" id="navList">
         <button class="nav-item active" data-view="muse" type="button"><span>✦</span><b>Muse</b></button>
-        <button class="nav-item" data-view="capture" type="button"><span>⊕</span><b>Capture</b></button>
         <button class="nav-item" data-view="journal" type="button"><span>▤</span><b>Journal</b></button>
-        <button class="nav-item" data-view="later" type="button"><span>↝</span><b>Make Later</b></button>
         <button class="nav-item" data-view="studio" type="button"><span>⌂</span><b>Studio</b></button>
+        <button class="nav-item" data-view="analytics" type="button"><span>⌁</span><b>Analytics</b></button>
       </nav>
       <div class="rail-foot">
+        <button class="rail-theme-toggle" id="desktopThemeToggle" type="button" aria-label="Switch to dark mode"><span aria-hidden="true">◐</span><b>Dark mode</b></button>
         <p id="saveIndicator">Saved</p>
-        <p class="version">FI-077 · v2.2</p>
+        <p class="version">FI-077 · v2.7.9</p>
       </div>
     </aside>
 
@@ -119,7 +173,7 @@
           <div>
             <p class="eyebrow">Expose · Develop · Return</p>
             <h2 id="museTitle">The trail has entered the darkroom.</h2>
-            <p class="lede">A mobile field journal shaped like a silver gelatin print: deep shadows, luminous weather, patient looking, and a creative follow-up engine for developing field sparks into finished work.</p>
+            <p class="lede">A mobile field journal shaped like a silver gelatin print: deep shadows, luminous weather, patient looking, and a quiet path from field observation to organized projects and finished creative work.</p>
           </div>
           <div class="session-pill" id="currentSessionPill">No active session</div>
         </div>
@@ -131,7 +185,6 @@
               <h3>Capture it. Pocket the phone.</h3>
               <p>One note, one prompt, or one field card. Then keep walking.</p>
             </div>
-            <button class="primary compact" id="trailPromptButton" type="button">Expose prompt</button>
           </div>
 
           <div class="trail-session-starter" id="trailSessionStarter">
@@ -187,6 +240,27 @@
                 <option>Urban edge</option>
                 <option>Neighborhood walk</option>
               </select>
+              <select id="trailSessionLight" aria-label="Quick session light">
+                <option value="">Light</option>
+                <option>High contrast</option>
+                <option>Soft overcast</option>
+                <option>Backlit</option>
+                <option>Blue hour</option>
+                <option>Hard sun</option>
+                <option>Low silver light</option>
+                <option>Night / headlamp</option>
+              </select>
+              <select id="trailSessionPace" aria-label="Quick session pace">
+                <option value="">Pace</option>
+                <option>Walking</option>
+                <option>Slow looking</option>
+                <option>Moving fast</option>
+                <option>Rest stop</option>
+                <option>Photography</option>
+                <option>Sketching</option>
+                <option>Thinking walk</option>
+                <option>Resting / observing</option>
+              </select>
                 </div>
               </details>
             </div>
@@ -197,12 +271,19 @@
             <button class="primary" id="saveTrailQuickNote" type="button">Save + keep walking</button>
           </div>
 
-          <div class="field-console-actions reduced">
-            <button data-one-tap="Trail Thought" type="button"><span>☁</span>Thought</button>
-            <button data-one-tap="Photography Note" type="button"><span>▧</span>Photo</button>
-            <button data-one-tap="Found Object" type="button"><span>◈</span>Object</button>
-            <button data-one-tap="Small Discovery" type="button"><span>✶</span>Discovery</button>
-          </div>
+          <section class="muse-capture-group" aria-labelledby="museCaptureActionsTitle">
+            <div class="muse-capture-group-head">
+              <p class="eyebrow">New field entry</p>
+              <h3 id="museCaptureActionsTitle">What did you notice?</h3>
+            </div>
+            <div class="field-console-actions muse-action-grid">
+              <button data-muse-prompt type="button"><span>✦</span><strong>Expose prompt</strong></button>
+              <button data-one-tap="Trail Thought" type="button"><span>☁</span><strong>Thought</strong></button>
+              <button data-one-tap="Photography Note" type="button"><span>▧</span><strong>Photo</strong></button>
+              <button data-one-tap="Found Object" type="button"><span>◈</span><strong>Object</strong></button>
+              <button data-one-tap="Small Discovery" type="button"><span>✶</span><strong>Discovery</strong></button>
+            </div>
+          </section>
         </section>
 
         <div class="prompt-board">
@@ -210,7 +291,6 @@
             <div class="prompt-controls prompt-controls-deck">
               <label for="promptDeck">Prompt deck</label>
               <select id="promptDeck"></select>
-              <button class="secondary compact" id="openDeckStudio" type="button">Deck editor</button>
             </div>
             <div class="prompt-output" id="promptOutput">
               <p class="prompt-kind">Wanderer</p>
@@ -218,7 +298,7 @@
               <p class="prompt-note">Prompts are small exposures. Use them while standing on a trail, sitting on a rock, or waiting for the clouds to open.</p>
             </div>
             <div class="prompt-actions">
-              <button class="primary huge" id="askMuse" type="button">Expose Prompt</button>
+              <button class="primary huge" id="askMuse" type="button" hidden aria-hidden="true" tabindex="-1">Expose Prompt</button>
               <button class="secondary" id="savePromptEntry" type="button">Save response</button>
             </div>
             <label class="field-label" for="promptResponse">Response</label>
@@ -231,42 +311,18 @@
             <div class="mini-stats" id="miniStats"></div>
           </aside>
         </div>
-      </section>
 
-      <section class="view" id="view-capture" aria-labelledby="captureTitle">
-        <div class="section-head">
-          <div>
-            <p class="eyebrow">Field Mode</p>
-            <h2 id="captureTitle">Catch the negative before it vanishes.</h2>
-            <p>Use these small forms outside. They autosave locally and become contact-sheet cards for later review.</p>
+        <section class="muse-capture-library" aria-labelledby="museCaptureTitle" hidden>
+          <div class="section-head compact-head">
+            <div>
+              <p class="eyebrow">Field Cards</p>
+              <h2 id="museCaptureTitle">Begin every new observation here.</h2>
+              <p>Muse is the single field doorway. Start a hike above, then choose the kind of trace you want to collect.</p>
+            </div>
+            <button class="primary" id="openFullCapture" type="button">New blank entry</button>
           </div>
-          <button class="primary" id="openFullCapture" type="button">New blank entry</button>
-        </div>
-
-        <section class="fast-capture-panel" aria-label="Fast field capture buttons">
-          <div>
-            <p class="eyebrow">One-tap capture</p>
-            <h3>Open the right card with field conditions already attached.</h3>
-          </div>
-          <div class="fast-capture-actions">
-            <button data-one-tap="Trail Thought" type="button">Trail thought</button>
-            <button data-one-tap="Photography Note" type="button">Photo note</button>
-            <button data-one-tap="Found Object" type="button">Found object</button>
-            <button data-one-tap="Sensory Note" type="button">Sensory note</button>
-            <button data-one-tap="Make Later" type="button">Make later</button>
-          </div>
+          <div class="capture-grid" id="captureGrid"></div>
         </section>
-
-        <section class="fast-capture-panel specimen-callout" aria-label="Found object ethics and specimen card reminder">
-          <div>
-            <p class="eyebrow">v2.1 Specimen Cards</p>
-            <h3>Found, not taken.</h3>
-            <p>Natural objects usually stay where they belong. Photograph, sketch, describe the material evidence, and make something from the observation later.</p>
-          </div>
-          <button class="secondary" data-one-tap="Found Object" type="button">Open specimen card</button>
-        </section>
-
-        <div class="capture-grid" id="captureGrid"></div>
       </section>
 
       <section class="view" id="view-journal" aria-labelledby="journalTitle">
@@ -276,7 +332,7 @@
             <h2 id="journalTitle">Collected exposures</h2>
           </div>
           <div class="toolbar">
-            <button class="secondary" id="exportJson" type="button">Export JSON</button>
+            <button class="secondary" id="exportJsonJournal" type="button">Export JSON</button>
             <label class="secondary file-label" for="importJson">Import JSON</label>
             <input id="importJson" type="file" accept="application/json" hidden />
           </div>
@@ -284,7 +340,7 @@
 
         <section class="review-strip" aria-label="Darkroom review layout controls">
           <div>
-            <p class="eyebrow">v2.1 Darkroom Review</p>
+            <p class="eyebrow">Darkroom Review</p>
             <h3>Review the roll as notes or a contact sheet.</h3>
           </div>
           <div class="segmented" role="group" aria-label="Journal layout">
@@ -310,6 +366,22 @@
           </select>
         </div>
 
+        <section class="journal-projects" aria-labelledby="journalProjectsTitle">
+          <div class="journal-projects-head">
+            <div>
+              <p class="eyebrow">Projects</p>
+              <h3 id="journalProjectsTitle">Organize captures into bodies of work.</h3>
+              <p>Create a project here, then assign captures from their Journal cards.</p>
+            </div>
+            <button class="primary" id="createJournalProject" type="button">New project</button>
+          </div>
+          <div class="project-filter-row">
+            <label for="journalProjectFilter">Show project</label>
+            <select id="journalProjectFilter"><option value="all">All captures</option><option value="unassigned">Unassigned captures</option></select>
+          </div>
+          <div class="journal-project-list" id="journalProjectList"></div>
+        </section>
+
         <div class="empty-state" id="emptyJournal">
           <div>◇</div>
           <h3>No field notes yet.</h3>
@@ -318,313 +390,178 @@
         <div class="card-list" id="journalList"></div>
       </section>
 
-      <section class="view" id="view-later" aria-labelledby="laterTitle">
-        <div class="section-head">
+
+      <section class="view" id="view-analytics" aria-labelledby="analyticsTitle">
+        <div class="section-head analytics-head">
           <div>
-            <p class="eyebrow">v2.1 Creative Follow-Up Engine</p>
-            <h2 id="laterTitle">Develop something from this later.</h2>
-            <p>Every exposure can become a drawing, photograph, essay, zine page, project note, or field instrument idea. Sort by priority, energy, project, and next action.</p>
+            <p class="eyebrow">Trail Intelligence</p>
+            <h2 id="analyticsTitle">Hike and field-entry analytics</h2>
+            <p>See how the walk unfolded, what you noticed, and which conditions produced the richest field record.</p>
           </div>
+          <label class="analytics-session-picker">Analyze
+            <select id="analyticsSessionFilter"><option value="all">All hikes</option></select>
+          </label>
         </div>
-        <div class="followup-engine" id="followupEngine"></div>
-        <div class="kanban" id="laterBoard"></div>
+
+        <div id="analyticsEmpty" class="empty-state">
+          <div>⌁</div><h3>No hike data yet.</h3><p>Start a hike in Muse and add field entries to build the analytics record.</p>
+        </div>
+
+        <div id="analyticsContent" class="analytics-content">
+          <section id="analyticsSummary" class="analytics-summary-grid" aria-label="Analytics summary"></section>
+
+          <div class="analytics-grid">
+            <section class="panel analytics-panel">
+              <div class="panel-head compact-head"><div><p class="eyebrow">Capture Mix</p><h3>What you recorded</h3></div></div>
+              <div id="analyticsTypeChart" class="analytics-bars"></div>
+            </section>
+            <section class="panel analytics-panel">
+              <div class="panel-head compact-head"><div><p class="eyebrow">Trail Conditions</p><h3>Where the notes came from</h3></div></div>
+              <div id="analyticsConditions" class="analytics-condition-list"></div>
+            </section>
+          </div>
+
+          <div class="analytics-grid">
+            <section class="panel analytics-panel">
+              <div class="panel-head compact-head"><div><p class="eyebrow">Field Rhythm</p><h3>Entries over the hike</h3></div></div>
+              <div id="analyticsTimeline" class="analytics-timeline"></div>
+            </section>
+            <section class="panel analytics-panel">
+              <div class="panel-head compact-head"><div><p class="eyebrow">Creative Readiness</p><h3>From capture to project</h3></div></div>
+              <div id="analyticsReadiness" class="analytics-readiness"></div>
+            </section>
+          </div>
+
+          <section class="panel analytics-panel">
+            <div class="panel-head compact-head"><div><p class="eyebrow">Hike Rollup</p><h3>Each hike at a glance</h3></div></div>
+            <div id="analyticsHikeTable" class="analytics-hike-table"></div>
+          </section>
+        </div>
       </section>
 
       <section class="view" id="view-studio" aria-labelledby="studioTitle">
-        <div class="section-head">
+        <div class="section-head studio-simple-head">
           <div>
-            <p class="eyebrow">v2.1 Trail Muse Studio</p>
-            <h2 id="studioTitle">Return to the print.</h2>
-            <p>Mobile capture outside. Desktop darkroom later. v2.1 connects the whole loop from field spark to reviewed roll, creative project, export, and backup.</p>
+            <p class="eyebrow">Trail Muse Studio</p>
+            <h2 id="studioTitle">Make the finished artifact.</h2>
+            <p>Select a Journal project, review its captures, and record what you made.</p>
           </div>
         </div>
 
-        <section class="studio-command-center" id="studioCommandCenter" aria-label="Trail Muse Studio command center"></section>
+        <section class="studio-project-picker panel">
+          <label for="studioProjectSelect">Project</label>
+          <select id="studioProjectSelect"><option value="">Choose a project</option></select>
+          <div id="studioProjectSummary" class="studio-project-summary"></div>
+        </section>
 
-        <div class="studio-grid">
-          <section class="panel wide studio-workflow-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">v2.1 Field-to-Studio Loop</p>
-                <h3>What needs attention before the next walk?</h3>
-              </div>
-              <p class="panel-note">A working checklist for converting raw field captures into reviewed, backed-up, and makeable studio material.</p>
-            </div>
-            <div class="studio-workflow" id="studioWorkflow"></div>
-          </section>
+        <section class="panel studio-project-captures">
+          <div class="panel-head compact-head">
+            <div><p class="eyebrow">Source material</p><h3>Captures in this project</h3></div>
+          </div>
+          <div class="studio-source-grid" id="studioProjectCaptures"></div>
+        </section>
 
-          <section class="panel wide series-builder-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">v2.1 Series Builder</p>
-                <h3>Find the bodies of work hiding in the contact sheet.</h3>
-              </div>
-              <p class="panel-note">Groups field sparks by project, session, and recurring signal so finished work can emerge from repeated attention.</p>
-            </div>
-            <div class="series-builder" id="seriesBuilder"></div>
-          </section>
+        <section class="panel studio-artifact-panel">
+          <div class="panel-head compact-head">
+            <div><p class="eyebrow">Finished artifact</p><h3>Record the work that emerged.</h3></div>
+          </div>
+          <form id="artifactForm" class="artifact-form">
+            <input id="artifactId" type="hidden" />
+            <label>Artifact title<input id="artifactTitle" type="text" placeholder="Towpath Silver, Issue 01" required /></label>
+            <label>Artifact type<select id="artifactType"><option>Photograph</option><option>Photo series</option><option>Drawing</option><option>Painting</option><option>Essay</option><option>Poem</option><option>Zine</option><option>Video</option><option>Audio work</option><option>Field Instrument</option><option>Other</option></select></label>
+            <label>Status<select id="artifactStatus"><option>In progress</option><option>Finished</option><option>Published</option><option>Archived</option></select></label>
+            <label class="artifact-notes">Artifact notes<textarea id="artifactNotes" rows="5" placeholder="What was made, where it lives, and what the project became."></textarea></label>
+            <label>Link or location<input id="artifactLink" type="text" placeholder="URL, filename, shelf, portfolio, publication..." /></label>
+            <div class="dialog-actions"><button class="secondary" id="clearArtifactForm" type="button">Clear</button><button class="primary" type="submit">Save artifact</button></div>
+          </form>
+          <div class="artifact-list" id="artifactList"></div>
+        </section>
 
-          <section class="panel archive-health-panel">
-            <div class="panel-head compact-head">
-              <div>
-                <p class="eyebrow">v2.1 Archive Health</p>
-                <h3>Backup and metadata readiness</h3>
-              </div>
+        <section class="studio-support-grid" aria-label="Studio support tools">
+          <details class="panel studio-support-panel archive-health-panel" open>
+            <summary>
+              <span><small>Archive Health</small><strong>Backup and metadata readiness</strong></span>
+              <span class="summary-mark" aria-hidden="true">+</span>
+            </summary>
+            <div class="support-panel-body">
+              <p class="panel-note">Confirm that the field archive is saved, backed up, and sufficiently described before it leaves the studio.</p>
+              <div class="archive-health" id="archiveHealth"></div>
             </div>
-            <div class="archive-health" id="archiveHealth"></div>
-          </section>
-          <section class="panel wide">
-            <h3>Creative harvest / tonal range</h3>
-            <div class="dashboard-grid" id="dashboardGrid"></div>
-          </section>
+          </details>
 
-          <section class="panel wide project-gallery-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">v2.1 Make Later Projects</p>
-                <h3>Creative workbench</h3>
+          <details class="panel studio-support-panel export-studio-panel" open>
+            <summary>
+              <span><small>Export Studio</small><strong>Make finished artifacts from the roll.</strong></span>
+              <span class="summary-mark" aria-hidden="true">+</span>
+            </summary>
+            <div class="support-panel-body">
+              <p class="panel-note">Export the selected project, the full field archive, or a presentation-ready artifact generated from the collected rolls.</p>
+              <div class="export-studio-grid compact-export-grid">
+                <button id="exportSelectedProjectHtml" class="export-tile" type="button"><span>▤</span><strong>Project Journal</strong><small>Finished HTML artifact containing the selected project's captures and recorded work.</small></button>
+                <button id="exportContactSheet" class="export-tile" type="button"><span>▧</span><strong>Contact Sheet</strong><small>Dense print-review grid made from field captures.</small></button>
+                <button id="exportZine" class="export-tile" type="button"><span>□</span><strong>Zine Sheet</strong><small>Printable mini-zine assembled from the strongest field fragments.</small></button>
+                <button id="exportGallery" class="export-tile" type="button"><span>◫</span><strong>HTML Gallery</strong><small>Image-forward gallery with captions and field notes.</small></button>
+                <button id="exportHarvest" class="export-tile" type="button"><span>✦</span><strong>Harvest Report</strong><small>Summary of strongest captures, recurring signals, and finished work.</small></button>
+                <button id="exportMarkdown" class="export-tile" type="button"><span>#</span><strong>Markdown Archive</strong><small>Portable text archive for editing, publishing, or long-term storage.</small></button>
               </div>
-              <p class="panel-note">Group queued sparks into projects, see low-energy quick wins, and capture notes when something becomes finished work.</p>
-            </div>
-            <div class="project-gallery" id="projectGallery"></div>
-          </section>
-          <section class="panel wide darkroom-review-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">Darkroom Review Bench</p>
-                <h3>Circle, reject, or develop the best exposures.</h3>
+              <div class="toolbar export-utility-row">
+                <button class="secondary" id="exportSelectedProject" type="button">Project JSON</button>
+                <button class="secondary" id="exportHtml" type="button">Full journal HTML</button>
+                <button class="secondary" id="exportCsv" type="button">CSV</button>
+                <button class="secondary" id="printJournal" type="button">Print / Save PDF</button>
+                <button class="secondary" id="exportJson" type="button">Full archive backup</button>
               </div>
-              <p class="panel-note">Use this on a PC after the walk to review by session, medium, and print status.</p>
             </div>
-            <div class="review-controls">
-              <select id="studioSessionFilter" aria-label="Filter by session"><option value="all">All sessions</option></select>
-              <select id="studioMediumFilter" aria-label="Filter by medium"><option value="all">All media</option></select>
-              <select id="studioStatusFilter" aria-label="Filter by status"><option value="all">All statuses</option></select>
-            </div>
-            <div class="best-sparks-summary" id="bestSparksSummary"></div>
-            <div class="studio-contact-sheet" id="studioContactSheet"></div>
-          </section>
+          </details>
 
-          <section class="panel wide specimen-gallery-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">v2.1 Specimen Drawer</p>
-                <h3>Found object gallery</h3>
-              </div>
-              <p class="panel-note">Review object cards as a museum drawer: material, texture, condition, scale, ethical handling, and future creative use.</p>
-            </div>
-            <div class="specimen-gallery" id="specimenGallery"></div>
-          </section>
-
-          <section class="panel wide deck-editor-panel" id="deckEditorPanel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">v2.1 Prompt Deck Editor</p>
-                <h3>Shape the Muse before the next roll.</h3>
-              </div>
-              <p class="panel-note">Create custom decks, clone built-in darkroom decks, tune prompts by medium and intensity, then use them in the field.</p>
-            </div>
-
-            <div class="deck-editor-grid">
-              <div class="deck-library">
-                <div class="deck-library-head">
-                  <h4>Prompt library</h4>
-                  <span id="deckLibraryCount">0 decks</span>
-                </div>
-                <div class="deck-library-list" id="deckLibraryList"></div>
-                <div class="deck-toolbox">
-                  <label>Clone built-in deck
-                    <select id="cloneSourceDeck"></select>
-                  </label>
-                  <div class="deck-actions">
-                    <button class="secondary compact" id="newDeck" type="button">New deck</button>
-                    <button class="secondary compact" id="cloneDeck" type="button">Clone deck</button>
-                    <button class="secondary compact" id="useDeckInMuse" type="button">Use in Muse</button>
-                  </div>
-                  <div class="deck-actions">
-                    <button class="secondary compact" id="exportDecks" type="button">Export decks</button>
-                    <label class="secondary compact file-label" for="importDecks">Import decks</label>
-                    <input id="importDecks" type="file" accept="application/json" hidden />
+          <details class="panel studio-support-panel deck-editor-panel" id="deckEditorPanel">
+            <summary>
+              <span><small>Prompt Deck Editor</small><strong>Shape the Muse before the next roll.</strong></span>
+              <span class="summary-mark" aria-hidden="true">+</span>
+            </summary>
+            <div class="support-panel-body">
+              <p class="panel-note">Create custom decks, clone a built-in deck, and select what the Muse will use on the next hike.</p>
+              <div class="deck-editor-grid">
+                <div class="deck-library">
+                  <div class="deck-library-head"><h4>Prompt library</h4><span id="deckLibraryCount">0 decks</span></div>
+                  <div class="deck-library-list" id="deckLibraryList"></div>
+                  <div class="deck-toolbox">
+                    <label>Clone built-in deck<select id="cloneSourceDeck"></select></label>
+                    <div class="deck-actions">
+                      <button class="secondary compact" id="newDeck" type="button">New deck</button>
+                      <button class="secondary compact" id="cloneDeck" type="button">Clone deck</button>
+                      <button class="secondary compact" id="useDeckInMuse" type="button">Use in Muse</button>
+                    </div>
+                    <div class="deck-actions">
+                      <button class="secondary compact" id="exportDecks" type="button">Export decks</button>
+                      <label class="secondary compact file-label" for="importDecks">Import decks</label>
+                      <input id="importDecks" type="file" accept="application/json" hidden />
+                    </div>
                   </div>
                 </div>
-              </div>
-
-              <form class="deck-editor-form" id="deckEditorForm">
-                <input type="hidden" id="editingDeckOriginalName" />
-                <label>Deck name
-                  <input id="deckName" type="text" placeholder="Example: Granite Weather, Night Walk, Urban Edges" />
-                </label>
-                <div class="form-grid">
-                  <label>Medium target
-                    <select id="deckMedium">
-                      <option>Mixed field practice</option>
-                      <option>Photography</option>
-                      <option>Drawing</option>
-                      <option>Writing</option>
-                      <option>Naturalist notes</option>
-                      <option>Design / engineering</option>
-                    </select>
-                  </label>
-                  <label>Prompt intensity
-                    <select id="deckIntensity">
-                      <option>Gentle noticing</option>
-                      <option>Observational</option>
-                      <option>Poetic</option>
-                      <option>Strange</option>
-                      <option>Technical</option>
-                    </select>
-                  </label>
-                </div>
-                <label>Description
-                  <input id="deckDescription" type="text" placeholder="What kind of seeing does this deck encourage?" />
-                </label>
-                <label>Prompts
-                  <textarea id="deckPrompts" rows="12" placeholder="One prompt per line.
-Look for a shadow that still holds detail.
-Describe the trail without using color words.
-Find a threshold between built and wild."></textarea>
-                </label>
-                <div class="deck-editor-footer">
-                  <p id="deckPromptCount">0 prompts</p>
-                  <div class="deck-actions">
-                    <button class="danger compact" id="deleteDeck" type="button">Delete custom deck</button>
-                    <button class="primary compact" id="saveDeck" type="submit">Save custom deck</button>
+                <form class="deck-editor-form" id="deckEditorForm">
+                  <input type="hidden" id="editingDeckOriginalName" />
+                  <label>Deck name<input id="deckName" type="text" placeholder="Granite Weather, Night Walk, Urban Edges..." /></label>
+                  <div class="form-grid">
+                    <label>Medium target<select id="deckMedium"><option>Mixed field practice</option><option>Photography</option><option>Drawing</option><option>Writing</option><option>Naturalist notes</option><option>Design / engineering</option></select></label>
+                    <label>Prompt intensity<select id="deckIntensity"><option>Gentle noticing</option><option>Observational</option><option>Poetic</option><option>Strange</option><option>Technical</option></select></label>
                   </div>
-                </div>
-              </form>
-            </div>
-          </section>
-
-          <section class="panel wide session-console-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">v2.1 Trail Session System</p>
-                <h3>Exposure roll console</h3>
-              </div>
-              <p class="panel-note">Each walk now has a container: conditions, creative focus, companions, notes, stats, review actions, and roll-specific exports.</p>
-            </div>
-            <div class="active-session-console" id="activeSessionConsole"></div>
-            <div class="session-archive" id="sessionArchive"></div>
-          </section>
-
-          <section class="panel">
-            <h3>Recurring signals in the negative</h3>
-            <div id="tagCloud" class="tag-cloud"></div>
-          </section>
-          <section class="panel">
-            <h3>Trail session / exposure roll</h3>
-            <div class="session-form">
-              <input id="sessionName" type="text" placeholder="Trail, park, neighborhood, or walk name" />
-              <input id="sessionIntent" type="text" placeholder="Intention or mood for this exposure roll" />
-              <input id="sessionFocus" type="text" placeholder="Creative focus: photography, sketching, writing, textures..." />
-              <input id="sessionCompanions" type="text" placeholder="Companions, if any" />
-              <textarea id="sessionNotes" rows="3" placeholder="Session notes: route, constraints, things to return for, or field conditions not captured elsewhere"></textarea>
-              <div class="session-condition-grid">
-                <select id="sessionLight" aria-label="Session light">
-                  <option value="">Light</option>
-                  <option>High contrast</option>
-                  <option>Soft overcast</option>
-                  <option>Backlit</option>
-                  <option>Blue hour</option>
-                  <option>Hard sun</option>
-                  <option>Low silver light</option>
-                  <option>Night / headlamp</option>
-                </select>
-                <select id="sessionWeather" aria-label="Session weather">
-                  <option value="">Weather</option>
-                  <option>Clear</option>
-                  <option>Partly cloudy</option>
-                  <option>Overcast</option>
-                  <option>Cloud build</option>
-                  <option>Mist</option>
-                  <option>Fog</option>
-                  <option>Drizzle</option>
-                  <option>Rain</option>
-                  <option>After storm</option>
-                  <option>Thunderstorm nearby</option>
-                  <option>Snow</option>
-                  <option>Snow flurries</option>
-                  <option>Frost</option>
-                  <option>Ice</option>
-                  <option>Wind</option>
-                  <option>High wind</option>
-                  <option>Humid</option>
-                  <option>Hot / hazy</option>
-                  <option>Cold / clear</option>
-                  <option>Damp ground</option>
-                </select>
-                <select id="sessionTerrain" aria-label="Session terrain">
-                  <option value="">Terrain</option>
-                  <option>Canal trail</option>
-                  <option>Towpath</option>
-                  <option>Lake trail</option>
-                  <option>River trail</option>
-                  <option>Creek / water</option>
-                  <option>Forest</option>
-                  <option>Ridge</option>
-                  <option>Mountain trail</option>
-                  <option>Field / meadow</option>
-                  <option>Wetland / marsh</option>
-                  <option>Boardwalk</option>
-                  <option>Rock / scree</option>
-                  <option>Gravel path</option>
-                  <option>Paved greenway</option>
-                  <option>Rail trail</option>
-                  <option>Urban edge</option>
-                  <option>Neighborhood walk</option>
-                </select>
-                <select id="sessionPace" aria-label="Session pace">
-                  <option value="">Pace</option>
-                  <option>Slow looking</option>
-                  <option>Moving fast</option>
-                  <option>Rest stop</option>
-                  <option>Sketching</option>
-                  <option>Photo walk</option>
-                  <option>Thinking walk</option>
-                </select>
-              </div>
-              <div class="two-buttons">
-                <button class="primary" id="startSession" type="button">Start session</button>
-                <button class="secondary" id="closeSession" type="button">Close session</button>
+                  <label>Description<input id="deckDescription" type="text" placeholder="What kind of seeing does this deck encourage?" /></label>
+                  <label>Prompts<textarea id="deckPrompts" rows="10" placeholder="One prompt per line."></textarea></label>
+                  <div class="deck-editor-footer"><p id="deckPromptCount">0 prompts</p><div class="deck-actions"><button class="danger compact" id="deleteDeck" type="button">Delete custom deck</button><button class="primary compact" id="saveDeck" type="submit">Save custom deck</button></div></div>
+                </form>
               </div>
             </div>
-          </section>
-          <section class="panel wide export-studio-panel">
-            <div class="panel-head">
-              <div>
-                <p class="eyebrow">v2.1 Export Studio</p>
-                <h3>Make finished artifacts from the roll.</h3>
-              </div>
-              <p class="panel-note">Choose the right output: field journal, contact sheet, zine sheet, gallery, markdown archive, specimen cards, or a creative harvest report.</p>
-            </div>
-            <div class="export-studio-grid" id="exportStudioGrid">
-              <button id="exportHtml" class="export-tile" type="button"><span>▤</span><strong>Silver Field Journal</strong><small>Readable HTML journal with notes, conditions, images, and make-later detail.</small></button>
-              <button id="exportContactSheet" class="export-tile" type="button"><span>▧</span><strong>Contact Sheet</strong><small>Dense darkroom grid for print review, circling, and session comparison.</small></button>
-              <button id="exportZine" class="export-tile" type="button"><span>□</span><strong>Zine Sheet</strong><small>Printable folded mini-zine from the strongest sparks and field fragments.</small></button>
-              <button id="exportGallery" class="export-tile" type="button"><span>◫</span><strong>HTML Gallery</strong><small>Image-forward gallery for photo/sketch attachments and captions.</small></button>
-              <button id="exportHarvest" class="export-tile" type="button"><span>✦</span><strong>Creative Harvest Report</strong><small>Studio summary with best sparks, recurring signals, projects, and next actions.</small></button>
-              <button id="exportMarkdown" class="export-tile" type="button"><span>#</span><strong>Markdown Archive</strong><small>Portable text archive for Obsidian, GitHub, notes, newsletters, or editing.</small></button>
-            </div>
-            <div class="export-actions export-actions-secondary">
-              <button id="exportActiveSession" class="secondary" type="button">Export active session HTML</button>
-              <button id="exportSpecimens" class="secondary" type="button">Export specimen cards</button>
-              <button id="exportProjects" class="secondary" type="button">Export make-later plan</button>
-              <button id="exportCsv" class="secondary" type="button">Export CSV</button>
-              <button id="printJournal" class="secondary" type="button">Print / Save PDF</button>
-              <button id="loadDemo" class="secondary" type="button">Load sample trail</button>
-              <button id="clearDemo" class="danger" type="button">Clear all local data</button>
-            </div>
-          </section>
-        </div>
+          </details>
+        </section>
       </section>
     </main>
 
     <nav class="bottom-nav" aria-label="Mobile navigation">
       <button class="bottom-item active" data-view="muse" type="button"><span>✦</span>Muse</button>
-      <button class="bottom-item" data-view="capture" type="button"><span>⊕</span>Capture</button>
       <button class="bottom-item" data-view="journal" type="button"><span>▤</span>Journal</button>
-      <button class="bottom-item" data-view="later" type="button"><span>↝</span>Later</button>
       <button class="bottom-item" data-view="studio" type="button"><span>⌂</span>Studio</button>
+      <button class="bottom-item" data-view="analytics" type="button"><span>⌁</span>Analytics</button>
     </nav>
   </div>
 
@@ -720,7 +657,7 @@ Find a threshold between built and wild."></textarea>
       </section>
 
       <div class="form-grid">
-        <label>Make later action
+        <label class="legacy-followup-field">Make later action
           <select id="entryAction">
             <option value="">None yet</option>
             <option>Draw this</option>
@@ -734,7 +671,7 @@ Find a threshold between built and wild."></textarea>
             <option>Combine with another exposure</option>
           </select>
         </label>
-        <label>Follow-up priority
+        <label class="legacy-followup-field">Follow-up priority
           <select id="entryPriority">
             <option>Normal</option>
             <option>Low</option>
@@ -742,7 +679,7 @@ Find a threshold between built and wild."></textarea>
             <option>Critical</option>
           </select>
         </label>
-        <label>Energy needed
+        <label class="legacy-followup-field">Energy needed
           <select id="entryEnergy">
             <option>One sitting</option>
             <option>Tiny edit</option>
@@ -750,16 +687,16 @@ Find a threshold between built and wild."></textarea>
             <option>Research trail</option>
           </select>
         </label>
-        <label>Project / collection
+        <label class="legacy-followup-field">Project / collection
           <input id="entryProject" type="text" placeholder="Canal zine, mountain study, photo series, essay folder..." />
         </label>
-        <label>Due / return date
+        <label class="legacy-followup-field">Due / return date
           <input id="entryDue" type="date" />
         </label>
-        <label>Next step note
+        <label class="legacy-followup-field">Next step note
           <input id="entryNextStep" type="text" placeholder="First small action when you return to the studio" />
         </label>
-        <label>Finished work notes
+        <label class="legacy-followup-field">Finished work notes
           <input id="entryFinishedNote" type="text" placeholder="Link, title, print note, publication note, or what you made" />
         </label>
         <label>Mood / feeling
@@ -858,6 +795,55 @@ Find a threshold between built and wild."></textarea>
     </form>
   </dialog>
 
+  <div id="projectDialog" class="project-dialog project-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="projectDialogTitle">
+    <form id="projectForm" class="project-dialog-card">
+      <input id="projectId" type="hidden" />
+      <div class="project-dialog-head">
+        <div>
+          <p class="eyebrow">Journal project</p>
+          <h2 id="projectDialogTitle">Create a project</h2>
+          <p>Group related field captures into one body of work.</p>
+        </div>
+        <button class="icon-button" id="closeProjectDialog" type="button" aria-label="Close project dialog">×</button>
+      </div>
+      <label class="project-field">Project name
+        <input id="projectName" type="text" maxlength="80" required placeholder="Example: Towpath in Winter" autocomplete="off" />
+      </label>
+      <label class="project-field">Description <span>optional</span>
+        <textarea id="projectDescription" rows="4" maxlength="500" placeholder="What connects these captures, and what might this project become?"></textarea>
+      </label>
+      <p class="form-error" id="projectFormError" role="alert" hidden></p>
+      <div class="dialog-actions project-dialog-actions">
+        <button class="secondary" id="cancelProjectDialog" type="button">Cancel</button>
+        <button class="primary" id="saveProject" type="submit">Create project</button>
+      </div>
+    </form>
+  </div>
+
+  <dialog id="clearAllDialog" class="project-dialog danger-dialog">
+    <form id="clearAllForm" class="project-dialog-card danger-dialog-card" method="dialog">
+      <div class="project-dialog-head">
+        <div>
+          <p class="eyebrow">Destructive action</p>
+          <h2>Clear all stored Trail Muse data?</h2>
+          <p>This permanently removes hikes, field entries, projects, artifacts, custom prompt decks, drafts, and local preferences from this device.</p>
+        </div>
+        <button class="icon-button" id="closeClearAllDialog" type="button" aria-label="Close clear data dialog">×</button>
+      </div>
+      <div class="danger-warning">
+        <strong>Export a JSON backup first if any of this work should be kept.</strong>
+        <span>This action cannot be undone.</span>
+      </div>
+      <label class="project-field">Type <strong>CLEAR</strong> to confirm
+        <input id="clearAllConfirmation" type="text" autocomplete="off" spellcheck="false" placeholder="CLEAR" />
+      </label>
+      <div class="dialog-actions project-dialog-actions">
+        <button class="secondary" id="cancelClearAllDialog" type="button">Cancel</button>
+        <button class="danger" id="confirmClearAll" type="submit" disabled>Clear everything</button>
+      </div>
+    </form>
+  </dialog>
+
   <template id="captureTemplate">
     <article class="capture-card">
       <div class="capture-icon"></div>
@@ -867,6 +853,8 @@ Find a threshold between built and wild."></textarea>
     </article>
   </template>
 
-  <script src="app.js"></script>
+
+
+  <script src="app.js?v=2.7.9"></script>
 </body>
 </html>

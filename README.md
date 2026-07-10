@@ -1,49 +1,63 @@
-# FI-077 Trail Muse v2.2
+# FI-077 Trail Muse v2.7.9
 
-Trail Muse is a local-first, mobile-first creative field journal and desktop darkroom studio for hikers, artists, writers, and photographers.
+A local-first, monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers. Trail Muse runs as static HTML, CSS, and a single `app.js`, with no build step. All data stays in the browser and is included in full JSON archive exports.
 
-## v2.2 focus: Trail Mode Simplification
+## Workflow
 
-v2.2 responds to real trail-use feedback. The app now does less while the user is outside. The Muse screen becomes the main hiking surface: start the walk, save one sentence, expose a prompt, or open one of four useful capture cards. Everything else can wait until later review on a PC.
+Trail Muse follows one direct creative workflow:
 
-## New in v2.2
+1. Capture field notes in **Muse**. A phone-first Trail Mode handles quick captures, sessions, and prompts.
+2. Create projects and assign captures in **Journal**.
+3. Record finished artifacts in **Studio**.
 
-- Consolidated the outdoor workflow into a new **Trail Mode** console on the Muse screen.
-- Removed the separate sunlight mode button so there is now only one visible **Light/Dark** mode toggle.
-- Added a **Start session** button directly to the Muse screen when there is no active session.
-- Added quick session starter fields:
-  - trail / walk name
-  - weather
-  - terrain
-- Added a **Save + keep walking** quick note box for one-sentence captures without opening the full form.
-- Reduced the main outdoor quick actions to four essentials:
-  - Thought
-  - Photo
-  - Object
-  - Discovery
-- Added a dedicated **Expose prompt** button to Trail Mode.
-- Expanded weather choices with partly cloudy, overcast, fog, drizzle, thunderstorm nearby, flurries, frost, ice, high wind, humid, hot/hazy, cold/clear, and damp ground.
-- Expanded terrain choices with canal trail, towpath, lake trail, river trail, mountain trail, wetland/marsh, boardwalk, gravel path, paved greenway, and rail trail.
-- Reframed the prompt-side quick panel as a trail rule: capture one useful trace, pocket the phone, and keep walking.
-- Updated visible version to **FI-077 · v2.2**.
+Studio is focused on selecting a project, reviewing its source captures, recording finished artifacts, and exporting the project. It keeps three compact, collapsible support areas:
 
-## Design intent
+- Archive Health for JSON backup status, metadata readiness, and the guarded "Clear all stored data" control.
+- Export Studio for project, contact-sheet, zine, gallery, harvest, Markdown, CSV, HTML, and print outputs.
+- Prompt Deck Editor for creating, cloning, importing, exporting, and selecting Muse prompt decks.
 
-Trail Muse should not compete with the hike. The v2.2 outdoor workflow is designed around a simple principle:
+An **Analytics** view provides review-only reporting: hike duration, capture frequency, entry-type mix, trail conditions, project readiness, timeline distribution, and per-hike rollups, filterable to one hike or the full archive.
 
-> Capture the trace. Pocket the phone. Keep walking.
+Existing entry-level project names are migrated into Journal projects automatically on load.
 
-The deeper features still exist for later review: journal, contact sheet, Make Later queue, darkroom review, sessions, prompt decks, specimen drawer, export studio, series builder, and archive health.
+## Lifecycle timestamps
 
-## Local-first behavior
+Trail Muse records ISO date/time values when a hike starts, when it finishes, and when each field entry is created. Legacy `startedAt`, `endedAt`, and `createdAt` fields are preserved alongside explicit `startTimestamp`, `finishTimestamp`, and `capturedAt` fields. Captured time appears in the Journal and in JSON, CSV, HTML, and Markdown exports.
 
-Trail Muse stores data locally in the browser with localStorage. Use JSON export as the backup mechanism before clearing browser data or moving to another device.
+## Data controls
 
-## Files
+- All data is local-first and exportable as a full JSON archive.
+- Archive Health includes a guarded **Clear all stored data** control that requires typing `CLEAR` before deletion is enabled. It removes locally stored hikes, entries, projects, artifacts, custom decks, drafts, backup metadata, and preferences.
 
-- `index.html` — app shell and UI
-- `styles.css` — monochrome, mobile-first, silver-print visual system
-- `app.js` — state, prompts, sessions, capture, journal, studio, exports
-- `manifest.webmanifest` — installable web app metadata
+## Changelog
 
-Field Instrument 077 · Trail Muse v2.2
+### v2.7.9 (cleanup pass)
+
+This release is a maintenance pass with no intended change to on-screen behavior. It removes accumulated dead code and fixes a latent crash.
+
+- Fixed a missing `uid()` helper. The project and artifact normalizers referenced `uid()`, which was never defined. On any archive that needed project migration (an entry whose project name had no stored project record), this threw a `ReferenceError` inside `renderAll` and could take down rendering. Added the helper and confirmed legacy archives now migrate cleanly.
+- Removed two shadowed copies of the app. Roughly 300 lines of duplicate `render*` and analytics functions were being overridden by later definitions and never ran. They are gone.
+- Removed the previously retired features that were still present in code but disconnected from the interface: Make Later board, follow-up engine, project and specimen galleries, series builder, studio command center, studio workflow, darkroom review scoring, tag cloud, and the desktop session console, plus their helpers and exports.
+- Collapsed four competing project-creation paths into one. Removed the inline bootstrap script, the button `onclick` handler, and two redundant event-binding installers. Project creation now uses a single in-app dialog with no full-page reload. Duplicate-name validation and edit-in-place are preserved.
+- Pruned event bindings and cached element lookups that pointed at DOM removed from the page.
+- `app.js` went from about 5,080 lines to about 3,520.
+
+Removed source is snapshotted in `archive/removed-legacy-code.js` for reference. It is not loaded by the app.
+
+### v2.7.8
+
+- Restored Studio essentials (Archive Health, Export Studio, Prompt Deck Editor) as compact collapsible panels.
+- Added lifecycle timestamps (`startTimestamp`, `finishTimestamp`, `capturedAt`) while preserving legacy fields.
+- Added the review-only Analytics module.
+- Added the guarded "Clear all stored data" control.
+- Replaced browser prompts with a styled in-app project dialog, added duplicate-name validation, and used the same dialog for editing.
+
+## Known limitations
+
+- `manifest.webmanifest` declares no icons, so installed PWA instances fall back to a default icon.
+- Analytics and exports operate on locally stored data only. There is no sync or backup beyond manual JSON export.
+- The desktop layout and the phone Trail Mode share state but are separate interfaces. Very narrow desktop windows fall back to Trail Mode below 800px.
+
+## License
+
+GPL-3.0
