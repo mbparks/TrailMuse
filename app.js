@@ -1,4 +1,4 @@
-const APP_VERSION = "2.11.0";
+const APP_VERSION = "2.11.2";
 const STORAGE_KEY = "fi077_trail_muse_state_v1";
 const DRAFT_KEY = "fi077_trail_muse_entry_draft_v1";
 
@@ -292,8 +292,6 @@ function stopAudioRecording() {
 const entryTypes = [
   "Prompt Response",
   "Sensory Note",
-  "Drawing Note",
-  "Writing Note",
   "Found Object",
   "Trail Thought",
   "Small Discovery"
@@ -518,24 +516,6 @@ const captureModules = [
     icon: "≈",
     title: "Sensory prompt",
     description: "Record sound, smell, texture, temperature, light, body feeling, or atmosphere as tonal evidence."
-  },
-  {
-    type: "Drawing Note",
-    icon: "✎",
-    title: "Drawing prompt",
-    description: "A shadow sketch, mark-making exercise, contour study, texture study, or map fragment."
-  },
-  {
-    type: "Writing Note",
-    icon: "¶",
-    title: "Writing prompt",
-    description: "A line, paragraph seed, poem fragment, field report, story opening, or essay note written without hurry."
-  },
-  {
-    type: "Make Later",
-    icon: "↝",
-    title: "Make something later",
-    description: "Turn any exposure into a creative follow-up: draw, write, edit, research, build, or publish."
   }
 ];
 

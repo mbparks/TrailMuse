@@ -1,17 +1,17 @@
 <!DOCTYPE html>
-<!-- FI-077 Trail Muse v2.11.0 | Photo and audio are attachments, not dedicated types -->
+<!-- FI-077 Trail Muse v2.11.2 | Renamed Expose prompt to Prompt -->
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>FI-077 Trail Muse v2.11.0</title>
+  <title>FI-077 Trail Muse v2.11.2</title>
   <meta name="description" content="Trail Muse is a mobile-first monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="icons/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png" />
   <meta name="theme-color" content="#111111" />
-  <link rel="stylesheet" href="styles.css?v=2.11.0" />
+  <link rel="stylesheet" href="styles.css?v=2.11.2" />
   <style id="mobileCriticalStyles">
     .mobile-field-app{display:none}
     @media (max-width:800px){
@@ -81,9 +81,9 @@
         <div class="mobile-muse-actions" aria-label="New field capture actions">
           <button id="mobilePrompt" type="button"><span>✦</span><strong>Prompt</strong></button>
           <button data-mobile-direct-type="Trail Thought" type="button"><span>☁</span><strong>Thought</strong></button>
-          <button data-mobile-direct-type="Photography Note" type="button"><span>▧</span><strong>Photo</strong></button>
           <button data-mobile-direct-type="Found Object" type="button"><span>◈</span><strong>Object</strong></button>
           <button data-mobile-direct-type="Small Discovery" type="button"><span>✶</span><strong>Discovery</strong></button>
+          <button data-mobile-direct-type="Sensory Note" type="button"><span>◌</span><strong>Sensory</strong></button>
         </div>
         <div id="mobilePromptCard" class="mobile-prompt-card" hidden><small>FIELD PROMPT</small><p id="mobilePromptText"></p><button id="mobileSavePrompt" type="button">Save as entry</button></div>
         <section class="mobile-recent-section"><div class="mobile-section-title"><h3>Recent</h3><button id="mobileViewAll" type="button">View all</button></div><div id="mobileRecentEntries" class="mobile-recent-list"></div></section>
@@ -94,7 +94,7 @@
     <dialog id="mobileCaptureDialog" class="mobile-sheet">
       <form method="dialog" id="mobileCaptureForm">
         <div class="mobile-sheet-handle"></div><div class="mobile-sheet-head"><div><small>NEW FIELD ENTRY</small><h2 id="mobileCaptureTitle">Capture</h2></div><button value="cancel" type="button" id="mobileCaptureClose">×</button></div>
-        <div id="mobileTypeChooser" class="mobile-type-grid"><button data-mobile-type="Trail Thought" type="button">☁<span>Thought</span></button><button data-mobile-type="Found Object" type="button">◈<span>Object</span></button><button data-mobile-type="Small Discovery" type="button">✶<span>Discovery</span></button><button data-mobile-type="Sensory Note" type="button">◌<span>Sensory</span></button><button data-mobile-type="Writing Note" type="button">¶<span>Writing</span></button></div>
+        <div id="mobileTypeChooser" class="mobile-type-grid"><button data-mobile-type="Trail Thought" type="button">☁<span>Thought</span></button><button data-mobile-type="Found Object" type="button">◈<span>Object</span></button><button data-mobile-type="Small Discovery" type="button">✶<span>Discovery</span></button><button data-mobile-type="Sensory Note" type="button">◌<span>Sensory</span></button></div>
         <div id="mobileCaptureFields" hidden>
           <input id="mobileCaptureType" type="hidden" />
           <textarea id="mobileCaptureNote" rows="6" placeholder="What did you notice?"></textarea>
@@ -165,7 +165,7 @@
     <aside class="rail" aria-label="Primary navigation">
       <div class="rail-title">
         <span>Trail Muse</span>
-        <small>v2.11.0</small>
+        <small>v2.11.2</small>
       </div>
       <nav class="nav-list" id="navList">
         <button class="nav-item active" data-view="muse" type="button"><span>✦</span><b>Muse</b></button>
@@ -176,7 +176,7 @@
       <div class="rail-foot">
         <button class="rail-theme-toggle" id="desktopThemeToggle" type="button" aria-label="Switch to dark mode"><span aria-hidden="true">◐</span><b>Dark mode</b></button>
         <p id="saveIndicator">Saved</p>
-        <p class="version">FI-077 · v2.11.0</p>
+        <p class="version">FI-077 · v2.11.2</p>
       </div>
     </aside>
 
@@ -290,10 +290,11 @@
               <h3 id="museCaptureActionsTitle">What did you notice?</h3>
             </div>
             <div class="field-console-actions muse-action-grid">
-              <button data-muse-prompt type="button"><span>✦</span><strong>Expose prompt</strong></button>
+              <button data-muse-prompt type="button"><span>✦</span><strong>Prompt</strong></button>
               <button data-one-tap="Trail Thought" type="button"><span>☁</span><strong>Thought</strong></button>
               <button data-one-tap="Found Object" type="button"><span>◈</span><strong>Object</strong></button>
               <button data-one-tap="Small Discovery" type="button"><span>✶</span><strong>Discovery</strong></button>
+              <button data-one-tap="Sensory Note" type="button"><span>◌</span><strong>Sensory</strong></button>
             </div>
           </section>
         </section>
@@ -306,11 +307,11 @@
             </div>
             <div class="prompt-output" id="promptOutput">
               <p class="prompt-kind">Wanderer</p>
-              <h3>Press “Expose Prompt” to receive a field prompt.</h3>
+              <h3>Press “Prompt” to receive a field prompt.</h3>
               <p class="prompt-note">Prompts are small exposures. Use them while standing on a trail, sitting on a rock, or waiting for the clouds to open.</p>
             </div>
             <div class="prompt-actions">
-              <button class="primary huge" id="askMuse" type="button" hidden aria-hidden="true" tabindex="-1">Expose Prompt</button>
+              <button class="primary huge" id="askMuse" type="button" hidden aria-hidden="true" tabindex="-1">Prompt</button>
               <button class="secondary" id="savePromptEntry" type="button">Save response</button>
             </div>
             <label class="field-label" for="promptResponse">Response</label>
@@ -881,6 +882,6 @@
 
 
 
-  <script src="app.js?v=2.11.0"></script>
+  <script src="app.js?v=2.11.2"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-# FI-077 Trail Muse v2.11.0
+# FI-077 Trail Muse v2.11.2
 
 A local-first, monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers. Trail Muse runs as static HTML, CSS, and a single `app.js`, with no build step. All data stays in the browser and is included in full JSON archive exports.
 
@@ -30,6 +30,19 @@ Trail Muse records ISO date/time values when a hike starts, when it finishes, an
 - Archive Health includes a guarded **Clear all stored data** control that requires typing `CLEAR` before deletion is enabled. It removes locally stored hikes, entries, projects, artifacts, custom decks, drafts, backup metadata, and preferences.
 
 ## Changelog
+
+### v2.11.2 (prompt label)
+
+Renamed the "Expose prompt" quick-capture button to just "Prompt" on desktop, matching the mobile label. Updated the prompt-deck heading that references it. The photography-exposure language elsewhere (the EXPOSE / WALK / RETURN motif and similar) is unchanged.
+
+### v2.11.1 (consistent field entry types)
+
+Reconciled the field entry types across every capture surface. All of them now offer exactly the same set: Expose prompt, Thought, Object, Discovery, Sensory.
+
+- Added Sensory to the desktop quick-capture row and the mobile active-screen grid.
+- Removed a stale Photo card from the mobile active-screen grid, and Writing from the mobile type sheet.
+- Dropped Drawing, Writing, and Make Later from the type dropdown and the capture library, leaving the five canonical entries.
+- Added a consistency test that fails if any surface drifts from the canonical set, so this cannot silently regress again.
 
 ### v2.11.0 (photo and audio as attachments)
 
