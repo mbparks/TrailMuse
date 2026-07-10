@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>FI-077 Trail Muse v2.1</title>
+  <title>FI-077 Trail Muse v2.1.1</title>
   <meta name="description" content="Trail Muse is a mobile-first monochrome creative field prompt generator and journal for hikers, artists, writers, and photographers." />
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="stylesheet" href="styles.css" />
@@ -27,7 +27,7 @@
     <aside class="rail" aria-label="Primary navigation">
       <div class="rail-title">
         <span>Trail Muse</span>
-        <small>v2.1</small>
+        <small>v2.1.1</small>
       </div>
       <nav class="nav-list" id="navList">
         <button class="nav-item active" data-view="muse" type="button"><span>✦</span><b>Muse</b></button>
@@ -38,7 +38,7 @@
       </nav>
       <div class="rail-foot">
         <p id="saveIndicator">Saved</p>
-        <p class="version">FI-077 · v2.1</p>
+        <p class="version">FI-077 · v2.1.1</p>
       </div>
     </aside>
 
@@ -56,20 +56,23 @@
         <section class="trail-mode-console" aria-label="Trail Mode quick capture console">
           <div class="trail-mode-head">
             <div>
-              <p class="eyebrow">v2.1 Trail Mode</p>
-              <h3>One screen for the hike.</h3>
-              <p>Start the roll, capture one sentence, or open the few field cards that matter while you are moving.</p>
+              <p class="eyebrow">Trail Mode</p>
+              <h3>Capture it. Pocket the phone.</h3>
+              <p>One note, one prompt, or one field card. Then keep walking.</p>
             </div>
             <button class="primary compact" id="trailPromptButton" type="button">Expose prompt</button>
           </div>
 
           <div class="trail-session-starter" id="trailSessionStarter">
-            <div>
+            <div class="trail-session-titleline">
               <strong id="trailSessionStatus">No active session</strong>
-              <span>New notes will be easier to review later if they belong to a named walk.</span>
             </div>
             <div class="trail-session-inputs">
-              <input id="trailSessionName" type="text" placeholder="Trail or walk name" />
+              <input id="trailSessionName" type="text" placeholder="Name this walk" />
+              <button class="primary" id="startTrailSessionQuick" type="button">Start session</button>
+              <details class="trail-conditions">
+                <summary>Conditions (optional)</summary>
+                <div class="trail-condition-fields">
               <select id="trailSessionWeather" aria-label="Quick session weather">
                 <option value="">Weather</option>
                 <option>Clear</option>
@@ -113,7 +116,8 @@
                 <option>Urban edge</option>
                 <option>Neighborhood walk</option>
               </select>
-              <button class="primary" id="startTrailSessionQuick" type="button">Start session</button>
+                </div>
+              </details>
             </div>
           </div>
 

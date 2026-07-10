@@ -1,4 +1,4 @@
-const APP_VERSION = "FI-077 Trail Muse v2.1";
+const APP_VERSION = "FI-077 Trail Muse v2.1.1";
 const STORAGE_KEY = "fi077_trail_muse_state_v1";
 const DRAFT_KEY = "fi077_trail_muse_entry_draft_v1";
 
@@ -1064,7 +1064,7 @@ function renderSaveIndicator() {
 }
 
 function applyTheme() {
-  // v2.1 simplification: there is one visible theme control. Sunlight mode is retired
+  // v2.1.1 simplification: there is one visible theme control. Sunlight mode is retired
   // as a separate switch so the hike UI has fewer competing buttons.
   state.sunlightMode = false;
   document.body.classList.toggle("dark", state.theme === "dark");
@@ -2478,7 +2478,7 @@ function renderStudioCommandCenter() {
 
   els.studioCommandCenter.innerHTML = `
     <div class="command-hero">
-      <p class="eyebrow">Trail Muse Studio v2.1</p>
+      <p class="eyebrow">Trail Muse Studio v2.1.1</p>
       <h3>Mobile field notes become a desktop darkroom.</h3>
       <p>Use this command surface after a walk: review the contact sheet, build a series, finish a project, export a journal, and back up the archive before the next roll.</p>
     </div>
@@ -3237,7 +3237,7 @@ function exportSpecimenCards() {
 </style>
 </head>
 <body>
-<header><p>Field Instrument 077 · Trail Muse v2.1</p><h1>Specimen Card Sheet</h1><p>${specimens.length} found object card${specimens.length === 1 ? "" : "s"}. Natural objects are treated as observations first: photograph, sketch, describe, and leave in place unless collecting is allowed and appropriate.</p></header>
+<header><p>Field Instrument 077 · Trail Muse v2.1.1</p><h1>Specimen Card Sheet</h1><p>${specimens.length} found object card${specimens.length === 1 ? "" : "s"}. Natural objects are treated as observations first: photograph, sketch, describe, and leave in place unless collecting is allowed and appropriate.</p></header>
 <main class="sheet">${cards}</main>
 </body>
 </html>`;
@@ -3287,7 +3287,7 @@ function exportMakeLaterPlan() {
 </head>
 <body>
 <header>
-  <p>Field Instrument 077 · Trail Muse v2.1</p>
+  <p>Field Instrument 077 · Trail Muse v2.1.1</p>
   <h1>Make-Later Plan</h1>
   <p>${queue.length} queued creative follow-up${queue.length === 1 ? "" : "s"} across ${projects.length} project group${projects.length === 1 ? "" : "s"}. Sorted by follow-up score, priority, energy, and review strength.</p>
 </header>
@@ -3400,7 +3400,7 @@ function exportContactSheet() {
 <body>
 <main style="max-width:1200px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1.1</p>
   <h1>Darkroom Contact Sheet</h1>
   <p>${entries.length} exposure${entries.length === 1 ? "" : "s"}, ranked by review score. Use this sheet to circle, reject, and choose what deserves development.</p>
 </header>
@@ -3453,7 +3453,7 @@ body { background: #efeee8; }
 <body>
 <main class="zine-wrap">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1.1</p>
   <h1>Printable Field Zine Sheet</h1>
   <p>Eight strongest sparks laid out as a small zine worksheet. Print, fold, cut, annotate, and return to the studio with a physical artifact.</p>
 </header>
@@ -3497,7 +3497,7 @@ ${exportPrintCss()}
 <body>
 <main style="max-width:1180px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1.1</p>
   <h1>Silver HTML Gallery</h1>
   <p>${entries.length} image exposure${entries.length === 1 ? "" : "s"} exported with captions, tags, and roll context.</p>
 </header>
@@ -3530,7 +3530,7 @@ function exportCreativeHarvestReport() {
 <body>
 <main style="max-width:1120px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1.1</p>
   <h1>Creative Harvest Report</h1>
   <p>Exported ${escapeHtml(formatDate(new Date().toISOString()))}. ${entries.length} exposure${entries.length === 1 ? "" : "s"}, ${queue.length} open follow-up${queue.length === 1 ? "" : "s"}, ${state.sessions.length} exposure roll${state.sessions.length === 1 ? "" : "s"}.</p>
 </header>
@@ -3561,7 +3561,7 @@ function exportMarkdownArchive() {
   const lines = [];
   lines.push(`# Trail Muse Field Archive`);
   lines.push("");
-  lines.push(`Field Instrument 077 · Trail Muse v2.1`);
+  lines.push(`Field Instrument 077 · Trail Muse v2.1.1`);
   lines.push(`Exported: ${formatDate(new Date().toISOString())}`);
   lines.push(`Entries: ${entries.length}`);
   lines.push("");
@@ -3632,7 +3632,7 @@ function exportHtml() {
 <body>
 <main style="max-width:980px;margin:0 auto;padding:1.5rem;">
 <header>
-  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1</p>
+  <p class="eyebrow">Field Instrument 077 · Trail Muse v2.1.1</p>
   <h1>Silver Field Journal</h1>
   <p>Exported ${escapeHtml(formatDate(new Date().toISOString()))}. ${entries.length} exposure${entries.length === 1 ? "" : "s"} collected across ${state.sessions.length} exposure roll${state.sessions.length === 1 ? "" : "s"}.</p>
   <p>This journal preserves field notes, prompts, conditions, specimen details, follow-up actions, and attached sketches or photographs in a monochrome print-ready format.</p>
@@ -3698,7 +3698,7 @@ function exportSessionHtml(sessionId) {
 </head>
 <body>
 <header>
-  <p>Field Instrument 077 · Trail Muse · v2.1 Exposure Roll Export</p>
+  <p>Field Instrument 077 · Trail Muse · v2.1.1 Exposure Roll Export</p>
   <h1>${escapeHtml(session.name || "Untitled exposure roll")}</h1>
   <p>${escapeHtml(conditionLine || "No session conditions recorded.")}</p>
   ${session.notes ? `<p>${escapeHtml(session.notes)}</p>` : ""}

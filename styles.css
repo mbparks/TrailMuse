@@ -2312,3 +2312,142 @@ body.dark .archive-health-panel {
     order: -1;
   }
 }
+
+/* v2.1.1 Mobile trail UX correction */
+.trail-session-titleline { min-width: 0; }
+.trail-conditions { grid-column: 1 / -1; }
+.trail-conditions summary {
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: .3rem 0;
+}
+.trail-condition-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .5rem;
+  padding-top: .45rem;
+}
+
+@media (max-width: 620px) {
+  .main-content { padding-top: .55rem; }
+  #view-muse { gap: .55rem; }
+
+  .hero-card {
+    min-height: 0;
+    padding: .9rem 1rem;
+    border-radius: 1rem;
+    gap: .65rem;
+  }
+  .hero-card .eyebrow,
+  .hero-card .lede,
+  .hero-card::after { display: none; }
+  .hero-card h2 {
+    max-width: 18ch;
+    font-size: clamp(1.55rem, 7.2vw, 2rem);
+    line-height: .98;
+    margin: 0;
+  }
+  .session-pill {
+    min-height: 2.45rem;
+    padding: .55rem .7rem;
+    font-size: .7rem;
+  }
+
+  .trail-mode-console {
+    padding: .75rem;
+    gap: .6rem;
+    margin-bottom: .65rem;
+    border-radius: 1rem;
+  }
+  .trail-mode-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .65rem;
+  }
+  .trail-mode-head > div { min-width: 0; }
+  .trail-mode-head .eyebrow { margin-bottom: .1rem; }
+  .trail-mode-head h3 {
+    font-size: 1.3rem;
+    line-height: 1;
+    margin: 0;
+  }
+  .trail-mode-head p:not(.eyebrow) { display: none; }
+  #trailPromptButton {
+    width: auto;
+    flex: 0 0 auto;
+    min-height: 2.45rem;
+    padding: .55rem .7rem;
+    font-size: .75rem;
+  }
+
+  .trail-session-starter {
+    display: block;
+    padding: .65rem;
+    border-radius: .8rem;
+  }
+  .trail-session-titleline { margin-bottom: .45rem; }
+  .trail-session-starter strong {
+    margin: 0;
+    font-size: .72rem;
+  }
+  .trail-session-inputs {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: .45rem;
+  }
+  .trail-session-inputs input,
+  .trail-session-inputs button { min-height: 2.65rem; }
+  .trail-session-inputs button {
+    grid-column: auto;
+    width: auto;
+    white-space: nowrap;
+    padding-inline: .75rem;
+  }
+  .trail-conditions { grid-column: 1 / -1; }
+  .trail-condition-fields { grid-template-columns: 1fr; }
+
+  .trail-quick-note {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: .4rem;
+  }
+  .trail-quick-note textarea {
+    min-height: 3.4rem;
+    padding: .7rem;
+    font-size: 1rem;
+  }
+  .trail-quick-note button {
+    min-height: 2.65rem;
+    width: 100%;
+  }
+
+  .field-console-actions.reduced {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .45rem;
+  }
+  .field-console-actions.reduced button {
+    min-height: 3rem;
+    justify-content: center;
+    padding: .55rem .45rem;
+    font-size: .82rem;
+  }
+
+  .prompt-board { gap: .65rem; }
+  .oracle-card { padding: .8rem; border-radius: 1rem; }
+  .prompt-controls-deck { gap: .4rem; }
+  #openDeckStudio { display: none; }
+  .prompt-output { padding: .8rem; min-height: 0; }
+  .prompt-output h3 { font-size: 1.25rem; }
+  .prompt-output .prompt-note { display: none; }
+  .prompt-actions { grid-template-columns: 1fr 1fr; gap: .4rem; }
+  .prompt-actions .huge,
+  .prompt-actions button { min-height: 2.8rem; padding: .6rem; }
+  #promptResponse { min-height: 5.5rem; }
+  .trail-principles { display: none; }
+}
